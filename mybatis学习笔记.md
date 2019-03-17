@@ -533,11 +533,24 @@ Hibernate对象/关系映射能力强，数据库无关性好，对于关系模�
 
 #### 2.1 引言
 
-通过上一篇mybatis的入门学习，我们已经会使用mybatis实现简单的增删改查，但是我们也发现了
+通过上一篇mybatis的入门学习，我们已经会使用mybatis实现简单的增删改查，但是我们也发现了用原始Dao开发的一些问题：
 
+1. Dao方法体存在重复代码：通过SqlSessionFactory创建SqlSession，调用SqlSession的数据库操作方法
+2. 调用sqlSession的数据库操作方法需要指定statement的id，这里存在硬编码，不得于开发维护。
 
+为了解决这些问题，我们采用**Mapper动态代理方法**来进行开发：程序员编写Mapper接口（相当于Dao接口），由Mybatis框架根据接口定义创建接口的动态代理对象，代理对象的方法体同上边Dao接口实现类方法。
 
+#### 2.2 **开发规范**
 
+Mapper接口开发需要遵循以下规范：
+
+1、 Mapper.xml文件中的namespace与mapper接口的类路径相同。
+
+2、 Mapper接口方法名和Mapper.xml中定义的每个statement的id相同 
+
+3、 Mapper接口方法的输入参数类型和mapper.xml中定义的每个sql 的parameterType的类型相同
+
+Mapper接口方法的输出参数类型和mapper.xml中定义的每个sql的resultType的类型相同
 
 
 
