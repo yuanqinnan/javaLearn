@@ -1,6 +1,6 @@
 ## mybatis学习笔记
 
-一、mybatis初识
+### 一、mybatis初识
 
 #### 1.1mybatis介绍
 
@@ -550,9 +550,257 @@ Mapper接口开发需要遵循以下规范：
 
 3、 Mapper接口方法的输入参数类型和mapper.xml中定义的每个sql 的parameterType的类型相同
 
-Mapper接口方法的输出参数类型和mapper.xml中定义的每个sql的resultType的类型相同
+4、Mapper接口方法的输出参数类型和mapper.xml中定义的每个sql的resultType的类型相同
+
+#### 2.3 改造
+
+**第一步：**Mapper.xml(映射文件)
+
+定义mapper映射文件UserMapper.xml，将UserMapper.xml放在config下mapper目录下，效果如下：
+
+![1552791556999](img\mp.png)
+
+文件内容如下：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="com.yuanqinnan.mapper.UserMapper">
+    <select id="queryUserById" parameterType="int" resultType="com.yuanqinnan.model.User">
+    SELECT * FROM `user`where id=#{id}
+   </select>
+    <!-- 查询 user 表的所有数据-->
+    <select id="selectUserAll" resultType="com.yuanqinnan.model.User">
+        select * from user
+    </select>
+    <!--
+            1、${value}里面必须要写value，不然会报错
+            2、${}表示拼接 sql 字符串，将接收到的参数不加任何修饰拼接在sql语句中
+            3、使用${}会造成 sql 注入
+    -->
+    <select id="selectLikeUserName" resultType="com.yuanqinnan.model.User" parameterType="String">
+        select * from user where username like '%${value}%'
+    </select>
+    <!--#{}实现-->
+    <select id="selectLikeUserName2" resultType="com.yuanqinnan.model.User" parameterType="String">
+        select * from user where username like #{username}
+    </select>
+    <!-- 向 user 表插入一条数据 -->
+    <insert id="insertUser" parameterType="com.yuanqinnan.model.User">
+        insert into user(id,username,sex,birthday,address)
+            value(#{id},#{username},#{sex},#{birthday},#{address})
+    </insert>
+    <!-- 保存用户 -->
+    <insert id="saveUser" parameterType="com.yuanqinnan.model.User">
+        <!-- selectKey 标签实现主键返回 -->
+        <!-- keyColumn:主键对应的表中的哪一列 -->
+        <!-- keyProperty：主键对应的pojo中的哪一个属性 -->
+        <!-- order：设置在执行insert语句前执行查询id的sql，在执行insert语句之后执行查询id的sql -->
+        <!-- resultType：设置返回的id的类型 -->
+        <selectKey keyColumn="id" keyProperty="id" order="AFTER"
+                   resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO `user`
+        (username,birthday,sex,address) VALUES
+        (#{username},#{birthday},#{sex},#{address})
+    </insert>
+    <!-- 根据 id 更新 user 表的数据 -->
+    <update id="updateUserById" parameterType="com.yuanqinnan.model.User">
+        update user set username=#{username} where id=#{id}
+    </update>
+
+    <!-- 根据 id 删除 user 表的数据 -->
+    <delete id="deleteUserById" parameterType="int">
+        delete from user where id=#{id}
+    </delete>
+</mapper>
+```
+
+其他地方未有改动，主要是namespace="com.yuanqinnan.mapper.UserMapper"的修改，现在我们实现这个接口
+
+**第二步：**UserMapper(接口文件)
+
+新建mapper包，新增接口UserMapper
+
+![1552791940384](img/1552791940384-1552791942462.png)
+
+内容：
+
+```java
+public interface UserMapper {
+
+    //查询用户
+    User queryUserById(int id);
+    //查询用户列表
+    List<User> selectUserAll();
+
+    //模糊查询
+    List<User> selectLikeUserName(String username);
+
+    //新增
+    void saveUser(User user);
+    
+}
+```
+
+**第三步：**加载UserMapper.xml文件
+
+```xml
+<mappers>
+    <!-- 映射文件方式1，一个一个的配置-->
+    <mapper resource="config/sqlmap/User.xml"/>
+    <mapper resource="config/mapper/UserMapper.xml"/>
+</mappers>
+```
+
+测试：
+
+```java
+public class MapperTest {
+    private SqlSessionFactory sqlSessionFactory;
+
+    @Before
+    public void init() throws Exception {
+        // 创建SqlSessionFactoryBuilder
+        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
+        // 加载SqlMapConfig.xml配置文件
+        InputStream inputStream = Resources.getResourceAsStream("config/SqlMapConfig.xml");
+        // 创建SqlsessionFactory
+        this.sqlSessionFactory = sqlSessionFactoryBuilder.build(inputStream);
+    }
+
+    @Test
+    public void testQueryUserById() {
+        // 获取sqlSession，和spring整合后由spring管理
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+        // 从sqlSession中获取Mapper接口的代理对象
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        // 执行查询方法
+        User user = userMapper.queryUserById(1);
+        System.out.println(user);
+
+        // 和spring整合后由spring管理
+        sqlSession.close();
+    }
+
+    @Test
+    public void testQueryUserByUsername() {
+        // 获取sqlSession，和spring整合后由spring管理
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+        // 从sqlSession中获取Mapper接口的代理对象
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        // 执行查询方法
+        List<User> list = userMapper.selectLikeUserName("张");
+        for (User user : list) {
+            System.out.println(user);
+        }
+
+        // 和spring整合后由spring管理
+        sqlSession.close();
+    }
+
+    @Test
+    public void testSaveUser() {
+        // 获取sqlSession，和spring整合后由spring管理
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+        // 从sqlSession中获取Mapper接口的代理对象
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        // 创建保存对象
+        User user = new User();
+        user.setUsername("刘备");
+        user.setBirthday(new Date());
+        user.setSex("1");
+        user.setAddress("蜀国");
+        // 执行查询方法
+        userMapper.saveUser(user);
+        System.out.println(user);
 
 
+        // 和spring整合后由spring管理
+        sqlSession.commit();
+        sqlSession.close();
+    }
+}
+```
 
+测试结果与上一篇相同
 
+#### 2.4 总结
+
+selectOne和selectList
+
+动态代理对象调用sqlSession.selectOne()和sqlSession.selectList()是根据mapper接口方法的返回值决定，如果返回list则调用selectList方法，如果返回单个对象则调用selectOne方法。
+
+ namespace
+
+mybatis官方推荐使用mapper代理方法开发mapper接口，程序员不用编写mapper接口实现类，使用mapper代理方法时，输入参数可以使用pojo包装对象或map对象，保证dao的通用性。
+
+### 三、SqlMapConfig.xml全局配置文件解析
+
+经过前两篇的总结，已经基本掌握了mybatis的开发模式，这篇主要是总结SqlMapConfig.xml文件的配置
+
+SqlMapConfig.xml中配置的内容和顺序如下：
+
+| 配置内容       | 作用                  |
+| -------------- | --------------------- |
+| **properties** | 用来加载属性文件      |
+| settings       | 用来设置全局参数      |
+| typeAliases    | 用来设置类型的别名    |
+| typeHandlers   | 用来设置类型处理器    |
+| objectFactory  | 用来设置对象工厂      |
+| plugins        | 用来设置插件          |
+| environments   | 用来设置mybatis的环境 |
+| mappers        | 用来配置映射文件      |
+
+下面依次来介绍各个配置
+
+#### 3.1 properties（属性）
+
+SqlMapConfig.xml可以引用java属性文件中的配置信息，如数据库配置，在config下新建db.properties如图：
+
+![1553092550880](img/1553092550880.png)
+
+内容如下：
+
+```xml
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/mybatis?characterEncoding=utf-8
+jdbc.username=root
+jdbc.password=123456
+```
+
+SqlMapConfig,xml 中修改：
+
+```xml
+<properties resource="config/db.properties">
+        <!-- properties中还可以配置一些属性名和属性值,此处的优先加载
+        <property name="" value=""/>
+        <property name="jdbc.username" value=""/>
+        <property name="jdbc.password" value=""/>
+    -->
+    </properties>
+
+    <!-- 和spring整合后 environments配置将废除 -->
+    <environments default="development">
+        <environment id="development">
+            <!-- 使用jdbc事务管理 -->
+            <transactionManager type="JDBC" />
+            <!-- 数据库连接池 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}" />
+                <property name="url"
+                          value="${jdbc.url}" />
+                <property name="username" value="${jdbc.username}" />
+                <property name="password" value="${jdbc.password}" />
+            </dataSource>
+        </environment>
+    </environments>
+```
 
