@@ -885,12 +885,12 @@ mybatis框架运行时可以调整一些运行参数。比如，开启二级缓�
     <!-- 单个别名定义 -->
     <typeAlias alias="user" type="com.yuanqinnan.model.User" />
     <!-- 批量别名定义，扫描整个包下的类，别名为类名（大小写不敏感） -->
-    <package name="cn.itcast.mybatis.pojo" />
+    <package name="com.yuanqinnan.model" />
     <package name="其它包" />
 </typeAliases>
 ```
 
-3.4 mappers（映射器）
+#### 3.4 mappers（映射器）
 
 Mapper配置的几种方法：
 
@@ -918,3 +918,123 @@ Mapper配置的几种方法：
 <!--此种方法要求mapper接口名称和mapper映射文件名称相同，且放在同一个目录中-->
 <mapper class="com.yuanqinnan.mapper"/>
 ```
+
+### 四、输入输出映射
+
+在日常开发用到mybatis时，因为实际的开发业务场景很复杂，不论是输入的查询条件，还是返回的结果，经常是需要根据业务来定制，这个时候我们就需要自己来定义一些输入和输出映射
+
+#### 4.1 输入映射
+
+ 输入映射是在映射文件中通过parameterType指定输入参数的类型，类型可以是简单类型、hashmap、pojo的包装类型，当我们去查询用户时，有些字段基本不会用作查询条件，还有一些时候我们需要连表查询，那么这个时候我们可以用到包装类。
+
+新建pojo包，定义包装类：
+
+```java
+public class QueryVo {
+    //pojo
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+}
+```
+
+将UserMapper.xml文件移至com.yuanqinnan.mapper包中，并增加一个查询方法
+
+```xml
+<select id="queryByQo" parameterType="com.yuanqinnan.pojo.QueryVo" resultType="com.yuanqinnan.model.User">
+    SELECT * from user  where username like '%${user.username}%'
+</select>
+```
+
+UserMapper中增加接口：
+
+```java
+List<User> queryByQo(QueryVo queryVo);
+```
+
+结果如图：
+
+![1553268644089](img/1553268644089.png)
+
+将SqlMapConfig.xml 中其他的配置恢复原先配置，引入mapper方式进行修改
+
+```xml
+<mappers>
+    <package name="com.yuanqinnan.mapper"/>
+</mappers>
+```
+
+增加测试方法：
+
+```java
+@Test
+public void testQueryUserByUsername2() {
+    // 获取sqlSession，和spring整合后由spring管理
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+    // 从sqlSession中获取Mapper接口的代理对象
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    // 执行查询方法
+    QueryVo queryVo=new QueryVo();
+    User user=new User();
+    user.setUsername("张");
+    queryVo.setUser(user);
+    List<User> list = userMapper.queryByQo(queryVo);
+    for (User user2 : list) {
+        System.out.println(user2);
+    }
+
+    // 和spring整合后由spring管理
+    sqlSession.close();
+}
+```
+
+原以为会很顺利的出现结果，结果一直报错：**invalid bound statement (not found)**，这个错误是找不到相应sql,可是明明路径和sql都是对的，最后竟然发现是需要在pom.xml文件中配置resource，不然mapper.xml文件就会被漏掉，这种错误真是太恼火了，加上配置
+
+```xml
+<build>
+  <resources>
+    <resource>
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.properties</include>
+        <include>**/*.xml</include>
+      </includes>
+      <filtering>false</filtering>
+    </resource>
+  </resources>
+</build>
+```
+
+得到测试结果：
+
+![1553269096014](img/1553269096014.png)
+
+输入映射比较简单，一般也不会使用包装类，而是根据需要的条件去设置字段比较好
+
+#### 4.2  resultType(输出类型)
+
+输出类型有简单类型，pojo类，pojo列表，pojol类和列表在前面的例子中都有演示，下面看一个简单类型的
+
+新增方法:
+
+```xml
+<select id="queryUserCount" resultType="int">
+    select count(*) from user
+</select>
+```
+
+UserMapper中增加接口：
+
+```java
+int queryUserCount();
+```
+
+测试：
+
