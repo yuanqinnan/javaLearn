@@ -804,3 +804,117 @@ SqlMapConfig,xml 中修改：
     </environments>
 ```
 
+注意： MyBatis 将按照下面的顺序来加载属性：在 properties 元素体内定义的属性首先被读取。 然后会读取properties 元素中resource或 url 加载的属性，它会覆盖已读取的同名属性
+
+#### 3.2 settings全局参数设置
+
+mybatis框架运行时可以调整一些运行参数。比如，开启二级缓存，开启延迟加载等等。全局参数会影响mybatis的运行行为
+
+| setting(设置)             | Description(描述)                                            | valid　Values(验证值组)                                      | Default(默认值)                                              |
+| ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| cacheEnabled              | 在全局范围内启用或禁用缓存配置 任何映射器在此配置下。        | true \| false                                                | TRUE                                                         |
+| lazyLoadingEnabled        | 在全局范围内启用或禁用延迟加载。禁用时，所有相关联的将热加载。 | true \| false                                                | TRUE                                                         |
+| aggressiveLazyLoading     | 启用时，有延迟加载属性的对象将被完全加载后调用懒惰的任何属性。否则，每一个属性是按需加载。 | true \| false                                                | TRUE                                                         |
+| multipleResultSetsEnabled | 允许或不允许从一个单独的语句（需要兼容的驱动程序）要返回多个结果集。 | true \| false                                                | TRUE                                                         |
+| useColumnLabel            | 使用列标签，而不是列名。在这方面，不同的驱动有不同的行为。参考驱动文档或测试两种方法来决定你的驱动程序的行为如何。 | true \| false                                                | TRUE                                                         |
+| useGeneratedKeys          | 允许JDBC支持生成的密钥。兼容的驱动程序是必需的。此设置强制生成的键被使用，如果设置为true，一些驱动会不兼容性，但仍然可以工作。 | true \| false                                                | FALSE                                                        |
+| autoMappingBehavior       | 指定MyBatis的应如何自动映射列到字段/属性。NONE自动映射。 PARTIAL只会自动映射结果没有嵌套结果映射定义里面。 FULL会自动映射的结果映射任何复杂的（包含嵌套或其他）。 | NONE,PARTIAL,FULL                                            | PARTIAL                                                      |
+| defaultExecutorType       | 配置默认执行人。SIMPLE执行人确实没有什么特别的。 REUSE执行器重用准备好的语句。 BATCH执行器重用语句和批处理更新。 | SIMPLE,REUSE,BATCH                                           | SIMPLE                                                       |
+| safeRowBoundsEnabled      | 允许使用嵌套的语句RowBounds。                                | true \| false                                                | FALSE                                                        |
+| mapUnderscoreToCamelCase  | 从经典的数据库列名A_COLUMN启用自动映射到骆驼标识的经典的Java属性名aColumn。 | true \| false                                                | FALSE                                                        |
+| localCacheScope           | MyBatis的使用本地缓存，以防止循环引用，并加快反复嵌套查询。默认情况下（SESSION）会话期间执行的所有查询缓存。如果localCacheScope=STATMENT本地会话将被用于语句的执行，只是没有将数据共享之间的两个不同的调用相同的SqlSession。 | SESSIONSTATEMENT                                             | SESSION                                                      |
+| dbcTypeForNull            | 指定为空值时，没有特定的JDBC类型的参数的JDBC类型。有些驱动需要指定列的JDBC类型，但其他像NULL，VARCHAR或OTHER的工作与通用值。 | JdbcType enumeration. Most common are: NULL, VARCHAR and OTHER | OTHER                                                        |
+| lazyLoadTriggerMethods    | 指定触发延迟加载的对象的方法。                               | A method name list separated by commas                       | equals,clone,hashCode,toString                               |
+| defaultScriptingLanguage  | 指定所使用的语言默认为动态SQL生成。                          | A type alias or fully qualified class name.                  | org.apache.ibatis.scripting.xmltags.XMLDynamicLanguageDriver |
+| callSettersOnNulls        | 指定如果setter方法或地图的put方法时，将调用检索到的值是null。它是有用的，当你依靠Map.keySet（）或null初始化。注意原语（如整型，布尔等）不会被设置为null。 | true \| false                                                | FALSE                                                        |
+| logPrefix                 | 指定的前缀字串，MyBatis将会增加记录器的名称。                | Any String                                                   | Not set                                                      |
+| logImpl                   | 指定MyBatis的日志实现使用。如果此设置是不存在的记录的实施将自动查找。 | SLF4J \| LOG4J \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING | Not set                                                      |
+| proxyFactory              | 指定代理工具，MyBatis将会使用创建懒加载能力的对象。          | CGLIB \| JAVASSIST                                           | CGLIB                                                        |
+
+默认的配置如下：
+
+```x&#39;m
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="multipleResultSetsEnabled" value="true"/>
+        <setting name="useColumnLabel" value="true"/>
+        <setting name="useGeneratedKeys" value="false"/>
+        <setting name="autoMappingBehavior" value="PARTIAL"/>
+        <setting name="defaultExecutorType" value="SIMPLE"/>
+        <setting name="defaultStatementTimeout" value="25"/>
+        <setting name="safeRowBoundsEnabled" value="false"/>
+        <setting name="mapUnderscoreToCamelCase" value="false"/>
+        <setting name="localCacheScope" value="SESSION"/>
+        <setting name="jdbcTypeForNull" value="OTHER"/>
+        <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+    </settings>
+```
+
+#### 3.3 typeAliases(类型别名)
+
+在mapper.xml中，定义很多的statement，statement需要parameterType指定输入参数的类型、需要resultType指定输出结果的映射类型。如果在指定类型时输入类型全路径，有时候会很长，不方便进行开发，那么我们就可以针对parameterType或resultType指定的类型定义一些别名，在mapper.xml中通过别名`<typeAliases>来`定义，方便开发，下面是默认的别名：
+
+| **别名**   | **映射的类型** |
+| ---------- | -------------- |
+| _byte      | byte           |
+| _long      | long           |
+| _short     | short          |
+| _int       | int            |
+| _integer   | int            |
+| _double    | double         |
+| _float     | float          |
+| _boolean   | boolean        |
+| string     | String         |
+| byte       | Byte           |
+| long       | Long           |
+| short      | Short          |
+| int        | Integer        |
+| integer    | Integer        |
+| double     | Double         |
+| float      | Float          |
+| boolean    | Boolean        |
+| date       | Date           |
+| decimal    | BigDecimal     |
+| bigdecimal | BigDecimal     |
+
+除了这些默认别名，我们还可以自己定义别名
+
+```xml
+<typeAliases>
+    <!-- 单个别名定义 -->
+    <typeAlias alias="user" type="com.yuanqinnan.model.User" />
+    <!-- 批量别名定义，扫描整个包下的类，别名为类名（大小写不敏感） -->
+    <package name="cn.itcast.mybatis.pojo" />
+    <package name="其它包" />
+</typeAliases>
+```
+
+3.4 mappers（映射器）
+
+Mapper配置的几种方法：
+
+**通过resource加载单个映射文件**
+
+```xml
+<mappers>
+    <!-- 映射文件方式1，一个一个的配置-->
+    <mapper resource="config/sqlmap/User.xml"/>
+    <mapper resource="config/mapper/UserMapper.xml"/>
+</mappers>
+```
+
+**使用mapper接口类路径**
+
+```xml
+  <!-- 通过mapper接口加载单个映射配置文件遵循一定的规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中；
+上边规范的前提是：使用的是mapper代理方法; -->
+  <mapper class="com.yuanqinnan.mapper.UserMapper"/>
+```
+
+**批量加载mapper（推荐使用)**
+
+```xml
+<!--此种方法要求mapper接口名称和mapper映射文件名称相同，且放在同一个目录中-->
+<mapper class="com.yuanqinnan.mapper"/>
+```

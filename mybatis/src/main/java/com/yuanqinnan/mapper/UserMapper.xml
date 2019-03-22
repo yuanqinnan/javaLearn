@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
 <mapper namespace="com.yuanqinnan.mapper.UserMapper">
-    <select id="queryUserById" parameterType="int" resultType="com.yuanqinnan.model.User">
+    <select id="queryUserById" parameterType="int" resultType="user">
     SELECT * FROM `user`where id=#{id}
    </select>
     <!-- 查询 user 表的所有数据-->
@@ -52,4 +52,11 @@
     <delete id="deleteUserById" parameterType="int">
         delete from user where id=#{id}
     </delete>
+
+    <select id="queryByQo" parameterType="com.yuanqinnan.pojo.QueryVo" resultType="com.yuanqinnan.model.User">
+        SELECT * from user  where username like '%${user.username}%'
+    </select>
+    <select id="queryUserCount" resultType="int">
+        select count(*) from user
+    </select>
 </mapper>

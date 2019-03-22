@@ -2,6 +2,7 @@ package com.yuanqinnan;
 
 import com.yuanqinnan.mapper.UserMapper;
 import com.yuanqinnan.model.User;
+import com.yuanqinnan.pojo.QueryVo;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -83,6 +84,41 @@ public class MapperTest {
 
         // 和spring整合后由spring管理
         sqlSession.commit();
+        sqlSession.close();
+    }
+
+    @Test
+    public void testQueryUserByUsername2() {
+        // 获取sqlSession，和spring整合后由spring管理
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+        // 从sqlSession中获取Mapper接口的代理对象
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        // 执行查询方法
+        QueryVo queryVo=new QueryVo();
+        User user=new User();
+        user.setUsername("张");
+        queryVo.setUser(user);
+        List<User> list = userMapper.queryByQo(queryVo);
+        for (User user2 : list) {
+            System.out.println(user2);
+        }
+
+        // 和spring整合后由spring管理
+        sqlSession.close();
+    }
+    @Test
+    public void testQueryUserCount() {
+        // 获取sqlSession，和spring整合后由spring管理
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+        // 从sqlSession中获取Mapper接口的代理对象
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        // 执行查询方法
+        int count= userMapper.queryUserCount() ;
+        System.out.println(count);
+
+        // 和spring整合后由spring管理
         sqlSession.close();
     }
 }

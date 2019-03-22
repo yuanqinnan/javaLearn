@@ -1,6 +1,7 @@
 package com.yuanqinnan.mapper;
 
 import com.yuanqinnan.model.User;
+import com.yuanqinnan.pojo.QueryVo;
 
 import java.util.List;
 
@@ -21,5 +22,9 @@ public interface UserMapper {
 
     //新增
     void saveUser(User user);
+
+    List<User> queryByQo(QueryVo queryVo);
+
+    int queryUserCount();
 
 }
