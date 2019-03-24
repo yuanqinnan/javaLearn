@@ -923,7 +923,7 @@ Mapper配置的几种方法：
 
 在日常开发用到mybatis时，因为实际的开发业务场景很复杂，不论是输入的查询条件，还是返回的结果，经常是需要根据业务来定制，这个时候我们就需要自己来定义一些输入和输出映射
 
-#### 4.1 输入映射
+#### 4.1 parameterType（输入映射）
 
  输入映射是在映射文件中通过parameterType指定输入参数的类型，类型可以是简单类型、hashmap、pojo的包装类型，当我们去查询用户时，有些字段基本不会用作查询条件，还有一些时候我们需要连表查询，那么这个时候我们可以用到包装类。
 
@@ -1038,3 +1038,151 @@ int queryUserCount();
 
 测试：
 
+```java
+@Test
+public void testQueryUserCount() {
+    // 获取sqlSession，和spring整合后由spring管理
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+
+    // 从sqlSession中获取Mapper接口的代理对象
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    // 执行查询方法
+    int count= userMapper.queryUserCount() ;
+    System.out.println(count);
+
+    // 和spring整合后由spring管理
+    sqlSession.close();
+}
+```
+
+结果：10
+
+#### 4.3 resultMap
+
+resultType可以指定将查询结果映射为pojo，但需要pojo的属性名和sql查询的列名一致方可映射成功。
+
+​	如果sql查询字段名和pojo的属性名不一致，可以通过resultMap将字段名和属性名作一个对应关系 ，resultMap实质上还需要将查询结果映射到pojo对象中。
+
+​	resultMap可以实现将查询结果映射为复杂类型的pojo，比如在查询结果映射对象中包括pojo和list实现一对一查询和一对多查询。
+
+下面通过例子来说明：
+
+先新增一张订单表，sql如下：
+
+```sql
+DROP TABLE IF EXISTS `order`;
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL COMMENT '下单用户id',
+  `number` varchar(32) NOT NULL COMMENT '订单号',
+  `createtime` datetime NOT NULL COMMENT '创建订单时间',
+  `note` varchar(100) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `FK_orders_1` (`user_id`),
+  CONSTRAINT `FK_order_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of order
+-- ----------------------------
+INSERT INTO `order` VALUES ('3', '1', '1000010', '2015-02-04 13:22:35', null);
+INSERT INTO `order` VALUES ('4', '1', '1000011', '2015-02-03 13:22:41', null);
+INSERT INTO `order` VALUES ('5', '10', '1000012', '2015-02-12 16:13:23', null);
+```
+
+实体：
+
+```java
+public class Order {
+
+    // 订单id
+    private int id;
+    // 用户id
+    private Integer userId;
+    // 订单号
+    private String number;
+    // 订单创建时间
+    private Date createtime;
+    // 备注
+    private String note;
+
+
+
+    public int getId() {
+        return id;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", number='" + number + '\'' +
+                ", createtime=" + createtime +
+                ", note='" + note + '\'' +
+                '}';
+    }
+}
+
+
+```
+
+新增OrderMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanqinnan.mapper.OrderMapper">
+    <!-- 查询所有的订单数据 -->
+    <select id="queryOrderAll" resultType="com.yuanqinnan.model.Order">
+      SELECT id, user_id,
+      number,
+      createtime, note FROM `order`
+   </select>
+</mapper>
+```
+
+新增OrderMapper
+
+```java
+public interface OrderMapper {
+    List<Order> queryOrderAll();
+}
+```

@@ -1,6 +1,8 @@
 package com.yuanqinnan;
 
+import com.yuanqinnan.mapper.OrderMapper;
 import com.yuanqinnan.mapper.UserMapper;
+import com.yuanqinnan.model.Order;
 import com.yuanqinnan.model.User;
 import com.yuanqinnan.pojo.QueryVo;
 import org.apache.ibatis.io.Resources;
@@ -120,5 +122,32 @@ public class MapperTest {
 
         // 和spring整合后由spring管理
         sqlSession.close();
+    }
+
+    @Test
+    public void testQueryAll() {
+        // 获取sqlSession
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        // 获取OrderMapper
+        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+
+        // 执行查询
+        List<Order> list = orderMapper.queryOrderAll();
+        for (Order order : list) {
+            System.out.println(order);
+        }
+    }
+    @Test
+    public void testQueryAll2() {
+        // 获取sqlSession
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        // 获取OrderMapper
+        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+
+        // 执行查询
+        List<Order> list = orderMapper.queryOrderAll2();
+        for (Order order : list) {
+            System.out.println(order);
+        }
     }
 }
