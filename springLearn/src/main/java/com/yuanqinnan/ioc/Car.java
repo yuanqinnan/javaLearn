@@ -18,6 +18,7 @@ public class Car {
     public String getColor() {
         return Color;
     }
+
     @Value("yellow")
     public void setColor(String color) {
         Color = color;

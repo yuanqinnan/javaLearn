@@ -7,8 +7,10 @@ package com.yuanqinnan.aop;
  */
 //员工接口
 public interface EmployeeService {
+
     //新增方法
     void addEmployee(Employee employee);
+
     //删除方法
     void deleteEmployee(Integer uid);
 }

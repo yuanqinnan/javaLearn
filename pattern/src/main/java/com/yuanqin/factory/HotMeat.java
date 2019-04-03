@@ -11,6 +11,7 @@ package com.yuanqin.factory;
  */
 //辣的肉
 public class HotMeat extends Meat {
+
     @Override
     public void cook() {
         System.out.println("红烧辣的肉");

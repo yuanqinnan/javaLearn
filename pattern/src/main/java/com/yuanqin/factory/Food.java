@@ -13,8 +13,10 @@ package com.yuanqin.factory;
 public interface Food {
     //准备
     void prepare();
+
     //烹饪
     void cook();
+
     //打包
     void box();
 }

@@ -21,7 +21,6 @@ public class Order {
     private String note;
 
 
-
     public int getId() {
         return id;
     }
@@ -61,6 +60,7 @@ public class Order {
     public void setNote(String note) {
         this.note = note;
     }
+
     @Override
     public String toString() {
         return "Order{" +

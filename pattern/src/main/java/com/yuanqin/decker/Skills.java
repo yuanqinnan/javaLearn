@@ -13,13 +13,13 @@ package com.yuanqin.decker;
 public abstract class Skills extends Hero {
     private Hero hero;
 
-    public Skills(Hero hero){
+    public Skills(Hero hero) {
         this.hero = hero;
     }
 
     @Override
     public void learnSkills() {
-        if(hero!=null){
+        if (hero != null) {
             hero.learnSkills();
         }
     }

@@ -12,11 +12,13 @@ package com.yuanqin.command;
 //绑定命令与接收者关系ConreteCommand
 public class LightOnCommand implements Command {
     Light light;
-    public LightOnCommand(Light light){
-        this.light=light;
+
+    public LightOnCommand(Light light) {
+        this.light = light;
     }
+
     //具体命令方法
     public void execute() {
-       light.on();
+        light.on();
     }
 }

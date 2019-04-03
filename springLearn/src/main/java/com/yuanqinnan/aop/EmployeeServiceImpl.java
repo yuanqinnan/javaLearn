@@ -7,6 +7,7 @@ package com.yuanqinnan.aop;
  */
 //员工方法实现
 public class EmployeeServiceImpl implements EmployeeService {
+
     @Override
     public void addEmployee(Employee employee) {
         System.out.println("新增员工");

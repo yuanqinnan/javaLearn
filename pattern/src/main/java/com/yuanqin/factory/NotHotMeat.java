@@ -11,6 +11,7 @@ package com.yuanqin.factory;
  */
 //不辣的肉
 public class NotHotMeat extends Meat {
+
     @Override
     public void cook() {
         System.out.println("红烧不辣的肉");

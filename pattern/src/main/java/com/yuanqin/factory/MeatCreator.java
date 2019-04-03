@@ -11,6 +11,7 @@ package com.yuanqin.factory;
  */
 //创建肉工厂
 public class MeatCreator implements Creator {
+
     public Food CreateFoddFactory() {
         return new Meat();
     }

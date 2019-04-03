@@ -9,7 +9,7 @@ package com.yuanqin.observer;
  * \* Description:
  * \
  */
-public class CurrentConditionsDisplay implements DisplayElement,Observer {
+public class CurrentConditionsDisplay implements DisplayElement, Observer {
 
     private float temperature;
     private float humidity;

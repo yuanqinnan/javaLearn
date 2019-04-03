@@ -10,7 +10,7 @@ public class User {
 
     private String name;
 
-    private  Integer age;
+    private Integer age;
 
     private Car car;
 
@@ -45,7 +45,7 @@ public class User {
         return "User{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
-                ", car=" + car.toString()+
+                ", car=" + car.toString() +
                 '}';
     }
 

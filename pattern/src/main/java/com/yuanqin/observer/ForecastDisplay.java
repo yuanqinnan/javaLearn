@@ -9,13 +9,14 @@ package com.yuanqin.observer;
  * \* Description:
  * \
  */
-public class ForecastDisplay implements DisplayElement,Observer {
-    private  float humidity;
-    private  float pressure;
+public class ForecastDisplay implements DisplayElement, Observer {
+
+    private float humidity;
+    private float pressure;
     private WeatherData weatherData;
 
-    public ForecastDisplay(WeatherData weatherData){
-        this.weatherData=weatherData;
+    public ForecastDisplay(WeatherData weatherData) {
+        this.weatherData = weatherData;
     }
 
     public void display() {
@@ -24,7 +25,7 @@ public class ForecastDisplay implements DisplayElement,Observer {
     }
 
     public void update(float temp, float humidity, float pressure) {
-        this.humidity=humidity;
-        this.pressure=pressure;
+        this.humidity = humidity;
+        this.pressure = pressure;
     }
 }

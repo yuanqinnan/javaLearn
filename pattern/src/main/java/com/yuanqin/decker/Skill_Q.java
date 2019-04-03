@@ -11,15 +11,16 @@ package com.yuanqin.decker;
  */
 //具体装饰子类，用来装饰
 public class Skill_Q extends Skills {
-    private  String skillName;
+    private String skillName;
 
-    public Skill_Q(Hero hero,String skillName) {
+    public Skill_Q(Hero hero, String skillName) {
         super(hero);
-        this.skillName=skillName;
+        this.skillName = skillName;
     }
+
     @Override
     public void learnSkills() {
-        System.out.println("学习了技能Q:" +skillName);
+        System.out.println("学习了技能Q:" + skillName);
         super.learnSkills();
     }
 }

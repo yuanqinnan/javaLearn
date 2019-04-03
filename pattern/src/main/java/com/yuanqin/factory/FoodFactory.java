@@ -13,6 +13,7 @@ package com.yuanqin.factory;
 public interface FoodFactory {
     //创建肉工厂
     Meat createMeat();
+
     //创建鱼工厂
     Fish createFish();
 }

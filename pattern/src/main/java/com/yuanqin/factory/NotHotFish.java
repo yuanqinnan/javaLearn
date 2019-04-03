@@ -11,6 +11,7 @@ package com.yuanqin.factory;
  */
 //不辣的鱼
 public class NotHotFish extends Fish {
+
     @Override
     public void cook() {
         System.out.println("做不辣的鱼");

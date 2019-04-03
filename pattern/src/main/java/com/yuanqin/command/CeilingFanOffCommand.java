@@ -12,9 +12,11 @@ package com.yuanqin.command;
 //吊灯的开灯命令
 public class CeilingFanOffCommand implements Command {
     CeilingFan ceilingFan;
-    public CeilingFanOffCommand(CeilingFan ceilingFan){
-        this.ceilingFan=ceilingFan;
+
+    public CeilingFanOffCommand(CeilingFan ceilingFan) {
+        this.ceilingFan = ceilingFan;
     }
+
     //具体命令方法
     public void execute() {
         ceilingFan.off();

@@ -1,6 +1,5 @@
 package com.yuanqinnan.transaction;
 
-import org.springframework.stereotype.Component;
 
 /**
  * Description: springLearn
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Component;
 public interface AccountDao {
     //转出
     void out(String outer, Double money);
+
     //转入
     void in(String in, Double money);
 }

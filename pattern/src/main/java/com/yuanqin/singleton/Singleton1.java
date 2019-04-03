@@ -11,12 +11,16 @@ package com.yuanqin.singleton;
  */
 //单例模式-饿汉式
 public class Singleton1 {
+
     //初始化器重直接创建，可以保证线程安全
-    private static Singleton1 uniqueInstance=new Singleton1();
+    private static Singleton1 uniqueInstance = new Singleton1();
+
     //静态方法
-    private Singleton1(){}
+    private Singleton1() {
+    }
+
     //直接返回
-    public static Singleton1 getInstance(){
+    public static Singleton1 getInstance() {
         return uniqueInstance;
     }
 }

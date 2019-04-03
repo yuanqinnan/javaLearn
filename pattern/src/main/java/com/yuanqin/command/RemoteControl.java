@@ -14,21 +14,25 @@ public class RemoteControl {
     //申明命令数组
     Command[] onCommands;
     Command[] offCommands;
-    public RemoteControl(){
-        onCommands=new Command[4];
-        offCommands=new Command[4];
+
+    public RemoteControl() {
+        onCommands = new Command[4];
+        offCommands = new Command[4];
     }
+
     //设置命令
-    public void setCommand(int solt,Command onCommand,Command offCommand){
-        onCommands[solt]=onCommand;
-        offCommands[solt]=offCommand;
+    public void setCommand(int solt, Command onCommand, Command offCommand) {
+        onCommands[solt] = onCommand;
+        offCommands[solt] = offCommand;
     }
+
     //打开按钮
-    public void onButtonWasPressed(int solt){
-         onCommands[solt].execute();
+    public void onButtonWasPressed(int solt) {
+        onCommands[solt].execute();
     }
+
     //关闭按钮
-    public void offButtonWasPressed(int solt){
+    public void offButtonWasPressed(int solt) {
         offCommands[solt].execute();
     }
 

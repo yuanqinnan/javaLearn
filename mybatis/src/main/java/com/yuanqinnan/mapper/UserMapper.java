@@ -14,6 +14,7 @@ public interface UserMapper {
 
     //查询用户
     User queryUserById(int id);
+
     //查询用户列表
     List<User> selectUserAll();
 

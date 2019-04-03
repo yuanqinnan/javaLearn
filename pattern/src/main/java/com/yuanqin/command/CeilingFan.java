@@ -13,15 +13,15 @@ package com.yuanqin.command;
 public class CeilingFan {
     private String name;
 
-    public CeilingFan(String name){
-        this.name=name;
+    public CeilingFan(String name) {
+        this.name = name;
     }
 
-    public void on(){
-        System.out.println(name+":打开");
+    public void on() {
+        System.out.println(name + ":打开");
     }
 
-    public void off(){
-        System.out.println(name+":关闭");
+    public void off() {
+        System.out.println(name + ":关闭");
     }
 }

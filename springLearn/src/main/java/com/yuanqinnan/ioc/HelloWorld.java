@@ -7,16 +7,17 @@ package com.yuanqinnan.ioc;
  */
 public class HelloWorld {
 
-        private String info;
+    private String info;
 
-        public String getInfo() {
-            return info;
-        }
+    public String getInfo() {
+        return info;
+    }
 
-        public void setInfo(String info) {
-            this.info = info;
-        }
-        public void destory(){
-            System.out.println("销毁方法");
-        }
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public void destory() {
+        System.out.println("销毁方法");
+    }
 }

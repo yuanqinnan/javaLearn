@@ -6,7 +6,8 @@ package com.yuanqinnan.ioc;
  * Created by yuanqn on 2019/1/23 21:02
  */
 public class HellowWorldFactory2 {
-    public HelloWorld createHellowWorld(){
+
+    public HelloWorld createHellowWorld() {
         return new HelloWorld();
     }
 }

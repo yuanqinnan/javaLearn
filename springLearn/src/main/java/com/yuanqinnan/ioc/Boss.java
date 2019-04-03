@@ -12,11 +12,13 @@ import org.springframework.stereotype.Component;
 //自身也注入其中
 @Component
 public class Boss {
+
     //自动装配
     @Autowired
     private Car car;
 
     private String name;
+
     @Value("袁帅")
     public void setName(String name) {
         this.name = name;

@@ -14,9 +14,11 @@ public class Fish implements Food {
     public void prepare() {
         System.out.println("洗鱼");
     }
+
     public void cook() {
         System.out.println("水煮鱼");
     }
+
     public void box() {
         System.out.println("大碗装鱼");
     }

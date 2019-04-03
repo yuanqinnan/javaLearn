@@ -13,11 +13,13 @@ package com.yuanqin.command;
 public class SimpleRemoteControl {
     //命令接口
     Command solt;
-    public void setCommand(Command command){
-        this.solt=command;
+
+    public void setCommand(Command command) {
+        this.solt = command;
     }
+
     //命令方法
-    public void buttonWasPressed(){
+    public void buttonWasPressed() {
         solt.execute();
     }
 

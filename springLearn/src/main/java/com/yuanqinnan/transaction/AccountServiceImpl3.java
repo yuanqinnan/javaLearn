@@ -13,8 +13,9 @@ import org.springframework.transaction.support.TransactionTemplate;
  * <p>
  * Created by yuanqn on 2019/3/11 23:15
  */
-@Transactional(propagation=Propagation.REQUIRED , isolation = Isolation.DEFAULT)
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
 public class AccountServiceImpl3 implements AccountService {
+
     // 业务层注入 DAO:
     private AccountDao accountDao;
     //注入事务管理
@@ -23,16 +24,17 @@ public class AccountServiceImpl3 implements AccountService {
     public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
     }
+
     public void setAccountDao(AccountDao accountDao) {
         this.accountDao = accountDao;
     }
 
-    public void transfer(final String from,final String to, final Double money) {
+    public void transfer(final String from, final String to, final Double money) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus arg0) {
                 accountDao.out(from, money);
-                int i = 1/0;
+                int i = 1 / 0;
                 accountDao.in(to, money);
             }
         });

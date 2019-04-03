@@ -11,6 +11,7 @@ package com.yuanqin.factory;
  */
 //创建鱼工厂
 public class FishCreator implements Creator {
+
     public Food CreateFoddFactory() {
         return new Fish();
     }

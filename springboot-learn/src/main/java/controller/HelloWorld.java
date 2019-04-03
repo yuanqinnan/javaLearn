@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class HelloWorld {
+
     @ResponseBody
     @RequestMapping("/world")
-    public String world(){
+    public String world() {
         return "hello world";
     }
 }

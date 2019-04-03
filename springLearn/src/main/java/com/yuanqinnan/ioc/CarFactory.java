@@ -22,7 +22,7 @@ public class CarFactory {
 //    @Resource(name = "benzCar")
 //    private ICar iCar3;
 
-    public String toString(){
+    public String toString() {
         System.out.println(iCar.getCarName());
         return iCar.getCarName();
     }

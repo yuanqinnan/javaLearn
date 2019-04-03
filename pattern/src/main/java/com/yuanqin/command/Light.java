@@ -12,15 +12,18 @@ package com.yuanqin.command;
 //命令接收者(Receiver),电灯
 public class Light {
     private String name;
-    public Light(String name){
-       this.name=name;
+
+    public Light(String name) {
+        this.name = name;
     }
+
     //开灯操作
-    public void on(){
-        System.out.println(name+":开灯！");
+    public void on() {
+        System.out.println(name + ":开灯！");
     }
+
     //关灯操作
-    public void off(){
-        System.out.println(name+"：关灯");
+    public void off() {
+        System.out.println(name + "：关灯");
     }
 }

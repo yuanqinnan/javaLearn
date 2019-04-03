@@ -16,7 +16,7 @@ public class ObjectInterceptor implements InvocationHandler {
     private MyTransaction transaction;
 
     //通过构造器赋值
-    public ObjectInterceptor(Object target,MyTransaction transaction){
+    public ObjectInterceptor(Object target, MyTransaction transaction) {
         this.target = target;
         this.transaction = transaction;
     }
@@ -26,8 +26,8 @@ public class ObjectInterceptor implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
         this.transaction.before();
-        method.invoke(target,args);
+        method.invoke(target, args);
         this.transaction.after();
-        return  null;
+        return null;
     }
 }

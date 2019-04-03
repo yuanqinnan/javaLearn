@@ -11,9 +11,11 @@ package com.yuanqin.command;
  */
 public class LightOffCommand implements Command {
     Light light;
-    public LightOffCommand(Light light){
-        this.light=light;
+
+    public LightOffCommand(Light light) {
+        this.light = light;
     }
+
     //具体命令方法
     public void execute() {
         light.off();

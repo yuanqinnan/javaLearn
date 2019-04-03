@@ -18,7 +18,8 @@ import java.util.Map;
 //@PropertySource(value = {"XXX"})
 //@ConfigurationProperties(prefix = "person")
 @Data
-public class Person  {
+public class Person {
+
     //支持${}
     @Value("${person.lastName}")
     private String lastName;
@@ -30,7 +31,7 @@ public class Person  {
     private Boolean boss;
     private Date birth;
 
-    private Map<String,Object> maps;
+    private Map<String, Object> maps;
     private List<Object> lists;
     private Dog dog;
 }

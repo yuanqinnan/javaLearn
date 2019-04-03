@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("bmwCar")
 public class BMWCar implements ICar {
+
     @Override
     public String getCarName() {
         return "宝马";

@@ -11,12 +11,15 @@ package com.yuanqin.factory;
  */
 //具体食物类 肉
 public class Meat implements Food {
+
     public void prepare() {
         System.out.println("切肉");
     }
+
     public void cook() {
         System.out.println("红烧肉");
     }
+
     public void box() {
         System.out.println("装肉");
     }

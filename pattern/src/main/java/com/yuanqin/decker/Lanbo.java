@@ -14,9 +14,10 @@ public class Lanbo extends Hero {
     //英雄属性
     private String name;
 
-    public Lanbo(String name){
+    public Lanbo(String name) {
         this.name = name;
     }
+
     @Override
     public void learnSkills() {
         System.out.println(name + "学习了以上技能！");

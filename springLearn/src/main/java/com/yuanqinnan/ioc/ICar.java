@@ -6,5 +6,6 @@ package com.yuanqinnan.ioc;
  * Created by yuanqn on 2019/3/9 22:57
  */
 public interface ICar {
+
      String getCarName();
 }

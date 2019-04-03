@@ -13,17 +13,19 @@ import javax.annotation.PreDestroy;
 @Component("benzCar")
 
 public class BenzCar implements ICar {
+
     @Override
     public String getCarName() {
         return "奔驰";
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         System.out.println("初始化方法");
     }
+
     @PreDestroy
-    public void destory(){
+    public void destory() {
         System.out.println("销毁方法");
     }
 }

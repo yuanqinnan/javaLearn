@@ -11,10 +11,12 @@ package com.yuanqin.factory;
  */
 //制造辣的工厂
 public class HotFoodFactory implements FoodFactory {
+
     public Meat createMeat() {
         return new HotMeat();
     }
+
     public Fish createFish() {
-         return new HotFish();
+        return new HotFish();
     }
 }
