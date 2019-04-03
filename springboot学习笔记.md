@@ -545,3 +545,177 @@ springboot 启动会扫描以下位置的application.properties或者application
 **1.3 总结**
 
 SpringBoot启动会加载大量的自动配置类，我们看我们需要的功能有没有SpringBoot默认写好的自动配置类，我们再来看这个自动配置类中到底配置了哪些组件，（只要我们要用的组件有，我们就不需要再来配置了）给容器中自动配置类添加组件的时候，会从properties类中获取某些属性。我们就可以在配置文件中指定这些属性的值。
+
+### 三、日志
+
+#### 3.1 引言
+
+日志对于一个系统的重要性不言而喻，日志能帮我们快速定位线上问题，市场上存在非常多的日志框架，比较常见的有 JUL，JCL，Log4j，Log4j2，Logback、SLF4j、jboss-logging等。
+
+spring-boot-starter-logging采用了slf4j+logback的形式，SLF4j（Simple Logging Facade for Java）是日志门面（日志抽象接口）,logback是日志实现。我们开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法。
+
+这里我们想到一个问题，我们的系统也会依赖其他框架，比如Spring、Hibernate, 这些框架本身也存在自己的日志框架，但我们需要做到使用slf4j进行输出，这个可以通过适配器模式来实现的，首先我们排除原先框架使用的日志，然后用中间包来替换原有的日志框架，这个中间包去实现原先日志框架的API，这样我们只需要导入slf4j转换包的依赖就可以解决。如图
+
+![1554299003853](/1554299003853.png)
+
+#### 3.2 日志使用
+
+日志的使用非常简单，只要用LogFactory.getLog(getClass()) 获取日志，然后记录信息。
+
+```java
+Log log = LogFactory.getLog(getClass());
+log.trace("这是trace日志");
+log.debug("这是debug日志");
+log.info("这是info日志");
+log.warn("这是warn日志");
+log.error("这是error日志");
+```
+
+日志级别由低到高，并且可以调整日志级别，日志就只会在这个级别以上（包括自己）的日志生效。springboot的默认级别是info, 我们可以针对包进行调整
+
+```java
+logging.level.com.yuanqinnan=trace
+```
+
+除了级别配置外，还有两个比较重要的配置，**路径**和**格式**
+
+路径有两个配置方式：
+
+```properties
+#当前项目下生成springlog.log
+#logging.file=springboot.log
+#完整的路径名称
+logging.file=G:/springboot.log
+#创建路径，由springboot生成默认的文件
+logging.path=G:/springlog
+```
+
+这两个是冲突配置，两个都写的话以logging.file为主
+
+我们可以对日志的输出进行格式配置：
+
+```yaml
+#在控制台输出的日志的格式
+logging.pattern.console=%d{yyyy-MM-dd} [%thread] %-5level %logger{50} - %msg%n
+# 指定文件中日志输出的格式
+logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} ==== %msg%n
+```
+
+具体参数：
+
+```yaml
+	%d表示日期时间，
+	%thread表示线程名，
+	%-5level：级别从左显示5个字符宽度
+	%logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
+	%msg：日志消息，
+	%n是换行符
+```
+springboot的日志都有自己的默认文件，如果需要用自己的日志配置，只要增加一个相同文件，那么就会使用我们自己配置的文件
+
+| Logging System          | Customization                                                |
+| ----------------------- | ------------------------------------------------------------ |
+| Logback                 | `logback-spring.xml`, `logback-spring.groovy`, `logback.xml` or `logback.groovy` |
+| Log4j2                  | `log4j2-spring.xml` or `log4j2.xml`                          |
+| JDK (Java Util Logging) | `logging.properties`                                         |
+
+springboot推荐使用`logback-spring.xml`来进行配置。
+
+SpringBoot的有高级Profile功能，如
+
+```yaml
+<springProfile name="staging">
+    <!-- configuration to be enabled when the "staging" profile is active -->
+  	可以指定某段配置只在某个环境下生效
+</springProfile>
+```
+
+日志的基本内容就是这些，另附上日志的一些常用配置供参考 
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+scan：当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+scanPeriod：设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒当scan为true时，此属性生效。默认的时间间隔为1分钟。
+debug：当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+-->
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
+    <!-- 定义日志的根目录 -->
+    <property name="LOG_HOME" value="/app/log" />
+    <!-- 定义日志文件名称 -->
+    <property name="appName" value="appName"></property>
+    <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <!--
+        日志输出格式：
+			%d表示日期时间，
+			%thread表示线程名，
+			%-5level：级别从左显示5个字符宽度
+			%logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
+			%msg：日志消息，
+			%n是换行符
+        -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->  
+    <appender name="appLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日志文件的名称 -->
+        <file>${LOG_HOME}/${appName}.log</file>
+        <!--
+        当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名
+        TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动。
+        -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--
+            滚动时产生的文件的存放位置及文件名称 %d{yyyy-MM-dd}：按天进行日志滚动 
+            %i：当文件大小超过maxFileSize时，按照i进行文件滚动
+            -->
+            <fileNamePattern>${LOG_HOME}/${appName}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 
+            可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每天滚动，
+            且maxHistory是365，则只保存最近365天的文件，删除之前的旧文件。注意，删除旧文件是，
+            那些为了归档而创建的目录也会被删除。
+            -->
+            <MaxHistory>365</MaxHistory>
+            <!-- 
+            当日志文件超过maxFileSize指定的大小是，根据上面提到的%i进行日志文件滚动 注意此处配置SizeBasedTriggeringPolicy是无法实现按文件大小进行滚动的，必须配置timeBasedFileNamingAndTriggeringPolicy
+            -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 日志输出格式： -->     
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [ %thread ] - [ %-5level ] [ %logger{50} : %line ] - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 
+		logger主要用于存放日志对象，也可以定义日志类型、级别
+		name：表示匹配的logger类型前缀，也就是包的前半部分
+		level：要记录的日志级别，包括 TRACE < DEBUG < INFO < WARN < ERROR
+		additivity：作用在于children-logger是否使用 rootLogger配置的appender进行输出，
+		false：表示只用当前logger的appender-ref，true：
+		表示当前logger的appender-ref和rootLogger的appender-ref都有效
+    -->
+    <!-- hibernate logger -->
+    <logger name="com.yuanqinnan" level="debug" />
+    <!-- Spring framework logger -->
+    <logger name="org.springframework" level="debug" additivity="false"></logger>
+
+
+
+    <!-- 
+    root与logger是父子关系，没有特别定义则默认为root，任何一个类只会和一个logger对应，
+    要么是定义的logger，要么是root，判断的关键在于找到这个logger，然后判断这个logger的appender和level。 
+    -->
+    <root level="info">
+        <appender-ref ref="stdout" />
+        <appender-ref ref="appLogAppender" />
+    </root>
+</configuration> 
+```
+
