@@ -590,7 +590,7 @@ logging.file=G:/springboot.log
 logging.path=G:/springlog
 ```
 
-这两个是冲突配置，两个都写的话以logging.file为主
+这两个是冲突配置，两个都写的话以logging.file为主。
 
 我们可以对日志的输出进行格式配置：
 
@@ -718,4 +718,161 @@ debug：当此属性设置为true时，将打印出logback内部日志信息，�
     </root>
 </configuration> 
 ```
+
+### 四、web开发
+
+#### 4.1 引言
+
+很大一部分java程序员都是从事Web开发, 有了自动配置，springboot使web开发变得简单，这个在springboot之旅中的第一篇中就有体现，实际的开发中当然不会这么简单，很多时候我们都需要自己去定制一些东西，web开发的东西也比较多，最好的方式就是动手写一遍CRUD，碰到问题，解决问题。
+
+快速的创建一个springboot web项目在第一篇总结中有讲：<https://www.cnblogs.com/yuanqinnan/p/10604761.html>
+
+现在大部分公司都是前后端分离的开发模式，一般作为后台开发不用关心前端，只需要提供相应接口，但是有关前端的知识我们最好还是能基本掌握一些。我们先了一套bootstrap框架，然后开始进行开发。
+
+#### 4.2 静态资源的映射规则
+
+在之前的web开发中，在main目录下面会有webapp文件夹，我们将所有的静态资源放在里面，但是springboot的默认生成中并没有这个文件夹，那么springboot是怎么映射静态资源。
+
+ctrl+N快捷键，找到**WebMvcAutoConfiguration**类，再找到里面的addResourceHandlers 方法
+
+```java
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
+   if (!this.resourceProperties.isAddMappings()) {
+      logger.debug("Default resource handling disabled");
+      return;
+   }
+   Duration cachePeriod = this.resourceProperties.getCache().getPeriod();
+   CacheControl cacheControl = this.resourceProperties.getCache()
+         .getCachecontrol().toHttpCacheControl();
+   //webjar形式
+   if (!registry.hasMappingForPattern("/webjars/**")) {
+      customizeResourceHandlerRegistration(registry
+            .addResourceHandler("/webjars/**")
+            .addResourceLocations("classpath:/META-INF/resources/webjars/")
+            .setCachePeriod(getSeconds(cachePeriod))
+            .setCacheControl(cacheControl));
+   }
+    //匹配/**
+   String staticPathPattern = this.mvcProperties.getStaticPathPattern();
+   if (!registry.hasMappingForPattern(staticPathPattern)) {
+      customizeResourceHandlerRegistration(
+            registry.addResourceHandler(staticPathPattern)
+                  .addResourceLocations(getResourceLocations(
+                      //映射的资源文件夹
+                        this.resourceProperties.getStaticLocations()))
+                  .setCachePeriod(getSeconds(cachePeriod))
+                  .setCacheControl(cacheControl));
+   }
+}
+```
+
+##### 4.2.1 webjars
+
+这里的代码告诉我们：如果是访问/webjars/**下的请求 ，都去 classpath:/META-INF/resources/webjars/ 找资源。webjars是指以jar包的方式引入静态资源。打开<https://www.webjars.org/> ，可以找到我们前端开发常用的一些组件，我们选择相应的版本，例：
+
+```xml
+<dependency>
+  <groupId>org.webjars</groupId>
+  <artifactId>jquery</artifactId>
+  <version>3.3.1-1</version>
+</dependency>
+```
+
+引入后可以看到jquer文件被引入了
+
+![1554639624050](/1554639624050.png)
+
+如果顺利的话，此时访问<http://localhost:8080/webjars/jquery/3.3.1-1/jquery.js>可以得到文件，结果如下：
+
+![1554640197586](/1554640197586.png)
+
+##### 4.2.2 自己的静态文件
+
+另外当访问当前项目的任何资源，都去（静态资源的文件夹）找映射，资源文件夹是一个数组，包括：
+
+"classpath:/META-INF/resources/", "classpath:/resources/","classpath:/static/", "classpath:/public/" ，
+
+"/"：当前项目的根路径。只要将静态文件放入其中，那么springboot就能找到。
+
+##### 4.2.3 首页
+
+ 在访问"/**",会去找静态资源文件夹下的所有index.html页面。
+
+##### 4.2.4 图标
+
+所有的 **/访问都是静态资源文件下找favicon.ico。
+
+我们将一些静态文件放在static下，并将index.html放入public文件夹下，如图：
+
+![1554648730496](/1554648730496.png)
+
+访问<http://localhost:8080/index.html> ,可得到正确返回
+
+![1554648795025](/1554648795025.png)
+
+#### 4.3 模板引擎
+
+模板引擎有很多，如JSP、Velocity、Freemarker、Thymeleaf，springboot推荐的是Thymeleaf，那我们就来简单看看Thymeleaf语法。导入starter:
+
+```xml
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-thymeleaf</artifactId>
+	</dependency>
+```
+进入之后可以看到默认版本，我们也可以改成自己需要的版本。
+
+```xml
+<thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
+<!-- 布局功能的支持程序  thymeleaf3主程序  layout2以上版本 -->
+<!-- thymeleaf2   layout1-->
+<thymeleaf-layout-dialect.version>2.2.2</thymeleaf-layout-dialect.version>
+```
+
+##### 4.3.1 Thymeleaf使用
+
+通过源码我们知道，只要我们把HTML页面放在classpath:/templates/，thymeleaf就能自动渲染。
+
+```java
+@ConfigurationProperties(prefix = "spring.thymeleaf")
+public class ThymeleafProperties {
+private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
+private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("text/html");
+public static final String DEFAULT_PREFIX = "classpath:/templates/";
+public static final String DEFAULT_SUFFIX = ".html";
+```
+我们可以去官网查看教程，这里只是简单的进行介绍，主要步骤
+
+第一步：导入命名空间，导入之后会有相应提示
+
+```html
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+```
+
+第二步：使用语法
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>成功！</h1>
+  <!--th:text 将div里面的文本内容设置为 -->
+<div><th th:text="${hello}"></th>这是显示欢迎信息</div>
+</body>
+</html>
+```
+
+更具体的使用方法，可以去查看官网教程，这种如果没有使用到的话不建议花太多时间去学，很多公司都是前后端分离，即使不是前后端分离，也有很多前端框架给我们使用。这些可以再我们使用的时候再去学习，速度也是很快的。
+
+#### 4.4 SpringMVC自动配置
+
+springboot默认将为我们配置如下一些SpringMvc的必要组件：
+
+1.必要的ViewResolver（视图解析器：根据方法的返回值得到视图对象（View）），如ContentNegotiatingViewResolver和bean
+
+
 

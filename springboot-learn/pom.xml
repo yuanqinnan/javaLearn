@@ -14,7 +14,6 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>springboot-learn</name>
-
   <properties>
     <!-- 文件拷贝时的编码 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,6 +41,14 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery</artifactId><version>3.3.1-1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
     <!--导入配置文件处理器，配置文件进行绑定就会有提示-->
     <dependency>
