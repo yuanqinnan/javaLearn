@@ -723,13 +723,13 @@ debug：当此属性设置为true时，将打印出logback内部日志信息，�
 
 #### 4.1 引言
 
-很大一部分java程序员都是从事Web开发, 有了自动配置，springboot使web开发变得简单，这个在springboot之旅中的第一篇中就有体现，实际的开发中当然不会这么简单，很多时候我们都需要自己去定制一些东西，web开发的东西也比较多，最好的方式就是动手写一遍CRUD，碰到问题，解决问题。
+有了自动配置，springboot使web开发变得简单，这个在springboot之旅中的第一篇中就有体现，实际的开发中当然不会这么简单，很多时候我们都需要自己去定制一些东西。web开发的东西比较多， 我们先掌握一些必要知识点，剩下的就是CRUD开发。
 
 快速的创建一个springboot web项目在第一篇总结中有讲：<https://www.cnblogs.com/yuanqinnan/p/10604761.html>
 
-现在大部分公司都是前后端分离的开发模式，一般作为后台开发不用关心前端，只需要提供相应接口，但是有关前端的知识我们最好还是能基本掌握一些。我们先了一套bootstrap框架，然后开始进行开发。
-
 #### 4.2 静态资源的映射规则
+
+现在大部分公司都是前后端分离的开发模式，一般作为后台开发不用关心前端，只需要提供相应接口，但是有关前端的知识我们最好还是能基本掌握一些。我们先了一套bootstrap框架，然后开始进行开发。
 
 在之前的web开发中，在main目录下面会有webapp文件夹，我们将所有的静态资源放在里面，但是springboot的默认生成中并没有这个文件夹，那么springboot是怎么映射静态资源。
 
@@ -870,9 +870,184 @@ public static final String DEFAULT_SUFFIX = ".html";
 
 #### 4.4 SpringMVC自动配置
 
+##### 4.4.1 自动配置
+
 springboot默认将为我们配置如下一些SpringMvc的必要组件：
 
-1.必要的ViewResolver（视图解析器：根据方法的返回值得到视图对象（View）），如ContentNegotiatingViewResolver和bean
+1. 必要的ViewResolver（视图解析器：根据方法的返回值得到视图对象（View）），如ContentNegotiatingViewResolver和`BeanNameViewResolver`。
+2. 将必要的`Converter`, `GenericConverter`, `Formatter` 等bean注册到ioc容器中。
+3. 添加了一系列的`HttpMessageConverters`以便支持对web请求和相应的类型转换。
+4. 自动配置和注册`MessageCodesResolver`
+
+任何时候，我们对默认提供的组件设定不满意，都可以注册新的同类型的bean定义来替换，web的所有自动场景都在**org.springframework.boot.autoconfigure.web**包中，我们可以参照进行配置。
+
+当然完全靠自动配置在实际开发时不够的，我们经常需要自己配置一些东西，比如拦截器，视图映射规则。
+
+##### 4.4.2  扩展配置
+
+在sprinboot2.0之前 配置类继承WebMvcConfigurerAdapter，但是现在这个方法已经过时，现在可以使用两种方式，继承WebMvcConfigurer接口或者继承WebMvcConfigurationSupport类，推荐使用的是WebMvcConfigurationSupport。
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/yuan").setViewName("success");
+    }
+}
+```
+
+这段代码就实现了自定义的视图映射。上面这种写法使SpringMVC的自动配置和我们的扩展配置都会起作用
+
+我们甚至可以全面接管springmvc,只要在配置类中增加@EnableWebMv注解，这样所有的SpringMVC的自动配置都失效了。当然，一般情况下我们不会这么做。
+
+#### 4.5 登录
+
+web系统一般少不了登录页面，我们先设定默认页面为登录页。
+
+##### 4.5.1 登录方法
+
+```java
+registry.addViewController("/").setViewName("login");
+registry.addViewController("/index.html").setViewName("login");
+```
+
+ 具体登录html的代码就不贴了，可以下载源码查看，新建controller
+
+```java
+@Controller
+public class LoginController {
+
+    @PostMapping(value = "/user/login")
+    public String login(@RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        Map<String,Object> map, HttpSession httpSession){
+        if(!StringUtils.isEmpty(username)&&
+        "123456".equals(password)){
+             //设置session
+             httpSession.setAttribute("loginUser",username);
+            //重定向到主页
+            return "redirect:/main.html";
+        }else {
+            map.put("msg","用户名密码错误");
+            return "login";
+        }
+    }
+}
+```
+
+##### 4.5.2 登录拦截器
+
+登录操作完成之后，为了对每个页面进行登录验证，我们还需要设置登录拦截器。先创建登录拦截器
+
+```java
+@Configuration
+public class LoginHandlerInterceptor implements HandlerInterceptor {
+
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        Object user = request.getSession().getAttribute("loginUser");
+        if(user == null){
+            //未登陆，返回登陆页面
+            request.setAttribute("msg","没有权限请先登陆");
+            request.getRequestDispatcher("/index.html").forward(request,response);
+            return false;
+        }else{
+            //已登陆，放行请求
+            return true;
+        }
+    }
+}
+```
+
+然后在加入配置
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Autowired
+    private LoginHandlerInterceptor loginHandlerInterceptor;
+    
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginHandlerInterceptor).addPathPatterns("/**")
+                .excludePathPatterns("/index.html","/","/user/login");
+    }
+ }
+```
+
+这样在访问其他页面时都会进行登录拦截操作
+
+#### 4.6 错误处理机制
+
+在进行开发时，错误处理是非常重要的，不管是直接显示给用户，或者返回给前端，都需要尽量友好和清晰。
+
+##### 4.6.1 默认的错误处理机制
+
+springboot有自身的默认错误处理机制，分为两种
+
+第一种：浏览器，浏览器会返回一个默认的错误页面，如：
+
+![1555248704379](/1555248704379.png)
+
+第二种：客户端，客户端默认返回的是一个响应一个json数据
+
+如果我们用postman访问，则返回
+
+![1555251214346](/1555251214346.png)
+
+##### 4.6.2 定制错误响应
+
+定制错误响应也分为两种，一种是定制错误页面，第二种是定制错误json数据
+
+###### 4.6.2.1 定制错误页面
+
+如果我们想要展示更加详细的信息，就将页面放在模板引擎文件夹下，路径名为 error/状态码，【将错误页面命名为错误状态码.html 放在模板引擎文件夹里面的 error文件夹下】，发生此状态码的错误就会来到 对应的页面。在这个页面我们可以获取到一些错误信息，如：
+
+-  timestamp：时间戳
+- status：状态码
+- error：错误提示
+- exception：异常对象
+- message：异常消息
+- errors：JSR303数据校验的错误都在这里
+
+我们可以根据这些错误信息来展示错误，一般不需要这么做，抛出的错误不应该让用户去分析，我们只需要返回静态页面即可，返回错误静态页面是做法也是一样的，只是我们不用将文件放在模板引擎文件夹下
+
+![1555250298240](/1555250298240.png)
+
+###### 4.6.2.2 定制错误的json数据
+
+在实际的开发中我们会对我们的错误码进行规范处理，根据错误会返回相应的错误码，所以我们会自己进行json数据包装处理。
+
+```java
+@ControllerAdvice
+public class GlobalDefaultExceptionHandler {
+
+    @ExceptionHandler(value = RequestException.class)
+    public String requestExceptionHandler(RequestException e){
+        Map<String,Object> map = new HashMap<>();
+        //传入我们自己的错误状态码  4xx 5xx，否则就不会进入定制错误页面的解析流程
+        request.setAttribute("javax.servlet.error.status_code",500);
+        map.put("code","user.notexist");
+        map.put("message",e.getMessage());
+        //转发到/error
+        return "forward:/error";
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+##### 
+
+
+
+
 
 
 

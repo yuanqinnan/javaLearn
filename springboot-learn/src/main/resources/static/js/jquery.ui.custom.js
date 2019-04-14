@@ -5499,12 +5499,12 @@ $.widget( "ui.slider", $.ui.mouse, {
 			});
 
 		this.handles.each(function( i ) {
-			$( this ).data( "index.ui-slider-handle", i );
+			$( this ).data( "templates.index.ui-slider-handle", i );
 		});
 
 		this.handles
 			.keydown(function( event ) {
-				var index = $( this ).data( "index.ui-slider-handle" ),
+				var index = $( this ).data( "templates.index.ui-slider-handle" ),
 					allowed,
 					curVal,
 					newVal,
@@ -5574,7 +5574,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 				self._slide( event, index, newVal );
 			})
 			.keyup(function( event ) {
-				var index = $( this ).data( "index.ui-slider-handle" );
+				var index = $( this ).data( "templates.index.ui-slider-handle" );
 	
 				if ( self._keySliding ) {
 					self._keySliding = false;
