@@ -59,4 +59,117 @@
     <select id="queryUserCount" resultType="int">
         select count(*) from user
     </select>
+
+    <!-- 根据条件查询用户 -->
+    <select id="queryUserByWhere" parameterType="user" resultType="user">
+        SELECT id, username, birthday, sex, address FROM `user`
+        WHERE 1=1
+        <if test="sex!=null and sex !=''">
+            AND sex = #{sex}
+        </if>
+        <if test="username!=null and username!=''">
+            AND username like
+            '%${username}%'
+        </if>
+    </select>
+    <!-- 根据条件查询用户 -->
+    <select id="queryUserByWhere1" parameterType="user" resultType="user">
+        SELECT id, username, birthday, sex, address FROM `user`
+        <!-- where标签可以自动添加where，同时处理sql语句中第一个and或者or关键字 -->
+        <where>
+            <if test="sex!=null">
+                AND sex = #{sex}
+            </if>
+            <if test="username!=null and username!=''">
+                AND username like
+                '%${username}%'
+            </if>
+        </where>
+    </select>
+
+    <update id="dynamicSetTest" parameterType="user">
+        update `user`
+        <set>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="username!=null and username!=''">
+                username = #{username},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="selectUserByChoose" resultType="user" parameterType="user">
+        select id, username, birthday, sex, address FROM `user`
+        <where>
+            <choose>
+                <when test="id !='' and id != null">
+                    id=#{id}
+                </when>
+                <when test="username !='' and username != null">
+                    and username like #{username}
+                </when>
+                <otherwise>
+                    and sex=#{sex}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <select id="selectUserByUsernameAndSex" resultType="user" parameterType="user">
+        select * from user
+        <!-- <where>
+            <if test="username != null">
+               username=#{username}
+            </if>
+
+            <if test="username != null">
+               and sex=#{sex}
+            </if>
+        </where>  -->
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="username != null">
+                and username=#{username}
+            </if>
+            <if test="sex != null">
+                and sex=#{sex}
+            </if>
+        </trim>
+    </select>
+
+    <!-- 声明sql片段 -->
+    <sql id="userFields">
+      id, username, birthday, sex, address
+    </sql>
+
+    <select id="queryUserBySqlWhere" parameterType="user" resultType="user">
+    <!-- SELECT id, username, birthday, sex, address FROM `user` -->
+    <!-- 使用include标签加载sql片段；refid是sql片段id -->
+    SELECT <include refid ="userFields"/> FROM `user`
+    <!-- where标签可以自动添加where关键字，同时处理sql语句中第一个and关键字 -->
+    <where>
+        <if test="sex != null">
+        AND sex = #{sex}
+    </if>
+    <if test="username != null and username != ''">
+    AND username LIKE
+    '%${username}%'
+     </if>
+        </where>
+    </select>
+    <select id="queryUserByIds" parameterType="com.yuanqinnan.pojo.QueryVo" resultType="user">
+    SELECT * FROM `user`
+    <where>
+        <!-- foreach标签，进行遍历 -->
+        <!-- collection：遍历的集合，这里是QueryVo的ids属性 -->
+        <!-- item：遍历的项目，可以随便写，，但是和后面的#{}里面要一致 -->
+        <!-- open：在前面添加的sql片段 -->
+        <!-- close：在结尾处添加的sql片段 -->
+        <!-- separator：指定遍历的元素之间使用的分隔符 -->
+        <foreach collection="ids" item="item" open="id IN (" close=")"
+        separator=",">
+        #{item}
+    </foreach>
+</where>
+        </select>
+
 </mapper>

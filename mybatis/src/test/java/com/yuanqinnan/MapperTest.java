@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -97,8 +98,8 @@ public class MapperTest {
         // 从sqlSession中获取Mapper接口的代理对象
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         // 执行查询方法
-        QueryVo queryVo=new QueryVo();
-        User user=new User();
+        QueryVo queryVo = new QueryVo();
+        User user = new User();
         user.setUsername("张");
         queryVo.setUser(user);
         List<User> list = userMapper.queryByQo(queryVo);
@@ -109,6 +110,7 @@ public class MapperTest {
         // 和spring整合后由spring管理
         sqlSession.close();
     }
+
     @Test
     public void testQueryUserCount() {
         // 获取sqlSession，和spring整合后由spring管理
@@ -117,7 +119,7 @@ public class MapperTest {
         // 从sqlSession中获取Mapper接口的代理对象
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         // 执行查询方法
-        int count= userMapper.queryUserCount() ;
+        int count = userMapper.queryUserCount();
         System.out.println(count);
 
         // 和spring整合后由spring管理
@@ -137,6 +139,7 @@ public class MapperTest {
             System.out.println(order);
         }
     }
+
     @Test
     public void testQueryAll2() {
         // 获取sqlSession
@@ -149,5 +152,68 @@ public class MapperTest {
         for (Order order : list) {
             System.out.println(order);
         }
+    }
+
+    @Test
+    public void testQueryUserByWhere() {
+        // mybatis和spring整合，整合之后，交给spring管理
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        // 创建Mapper接口的动态代理对象，整合之后，交给spring管理
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        // 使用userMapper执行根据条件查询用户
+        User user = new User();
+        //user.setSex("1");
+        user.setUsername("张");
+        List<User> list = userMapper.queryUserByWhere(user);
+        for (User u : list) {
+            System.out.println(u);
+        }
+        // mybatis和spring整合，整合之后，交给spring管理
+        sqlSession.close();
+    }
+
+    @Test
+    public void dynamicSetTest() {
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        User user = new User();
+        //user.setSex("1");
+        user.setUsername("袁大大");
+        user.setId(26);
+        userMapper.dynamicSetTest(user);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    @Test
+    public void selectUserByChoose(){
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        User user = new User();
+        //user.setSex("1");
+        user.setUsername("张%");
+        List<User> list = userMapper.selectUserByChoose(user);
+        for (User u : list) {
+            System.out.println(u);
+        }
+        // mybatis和spring整合，整合之后，交给spring管理
+        sqlSession.close();
+    }
+
+    @Test
+    public void queryUserByIds(){
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        QueryVo user = new QueryVo();
+        List<Integer>ids = new ArrayList<>();
+        ids.add(1);
+        ids.add(10);
+        ids.add(24);
+        user.setIds(ids);
+        List<User> list = userMapper.queryUserByIds(user);
+        for (User u : list) {
+            System.out.println(u);
+        }
+        sqlSession.close();
     }
 }

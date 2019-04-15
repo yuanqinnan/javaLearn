@@ -1,3 +1,7 @@
+---
+typora-root-url: img
+---
+
 ## mybatis学习笔记
 
 ### 一、mybatis初识
@@ -765,7 +769,7 @@ SqlMapConfig.xml中配置的内容和顺序如下：
 
 SqlMapConfig.xml可以引用java属性文件中的配置信息，如数据库配置，在config下新建db.properties如图：
 
-![1553092550880](img/1553092550880.png)
+![1553092550880](/1553092550880.png)
 
 内容如下：
 
@@ -1186,3 +1190,400 @@ public interface OrderMapper {
     List<Order> queryOrderAll();
 }
 ```
+
+测试：
+
+```java
+@Test
+public void testQueryAll() {
+    // 获取sqlSession
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    // 获取OrderMapper
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+
+    // 执行查询
+    List<Order> list = orderMapper.queryOrderAll();
+    for (Order order : list) {
+        System.out.println(order);
+    }
+}
+```
+
+结构如图：
+
+![1555296702019](/1555296702019.png)
+
+结果：
+
+![1555296747216](/1555296747216.png)
+
+发现userId为null，用resultMap解决,修改OrderMapper.xml，定义resultMap
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanqinnan.mapper.OrderMapper">
+    <!-- resultMap最终还是要将结果映射到pojo上，type就是指定映射到哪一个pojo -->
+    <!-- id：设置ResultMap的id -->
+    <resultMap type="com.yuanqinnan.model.Order" id="orderResultMap">
+        <!-- 定义主键 ,非常重要。如果是多个字段,则定义多个id -->
+        <!-- property：主键在pojo中的属性名 -->
+        <!-- column：主键在数据库中的列名 -->
+        <id property="id" column="id" />
+        <!-- 定义普通属性 -->
+        <result property="userId" column="user_id" />
+        <result property="number" column="number" />
+        <result property="createtime" column="createtime" />
+        <result property="note" column="note" />
+    </resultMap>
+
+
+    <!-- 查询所有的订单数据 -->
+    <select id="queryOrderAll" resultType="com.yuanqinnan.model.Order">
+      SELECT id, user_id,
+      number,
+      createtime, note FROM `order`
+   </select>
+
+    <select id="queryOrderAll2" resultMap="orderResultMap">
+      SELECT id, user_id,
+      number,
+      createtime, note FROM `order`
+   </select>
+</mapper>
+```
+
+增加接口：
+
+List<Order> queryOrderAll2();
+
+测试方法：
+
+```java
+@Test
+public void testQueryAll2() {
+    // 获取sqlSession
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    // 获取OrderMapper
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+
+    // 执行查询
+    List<Order> list = orderMapper.queryOrderAll2();
+    for (Order order : list) {
+        System.out.println(order);
+    }
+}
+```
+
+结果：
+
+![1555296926008](/1555296926008.png)
+
+### 五、动态sql
+
+在之前的CURD例子中，都是一些很简单的SQL，然而实际的业务开发中会有一些复杂的SQL，我们经常需要拼接SQL，拼接的时候要确保不能忘了必要的空格，还要注意省掉列名列表最后的逗号。Mybatis个一个强大特性--动态SQL，这一特性可以彻底摆脱这种痛苦。
+
+#### 5.1、if标签
+
+现在有如下查询
+
+```xml
+    <!-- 根据条件查询用户 -->
+    <select id="queryUserByWhere" parameterType="user" resultType="user">
+      SELECT id, username, birthday, sex, address FROM `user`
+        WHERE sex = #{sex} AND username LIKE
+       '%${username}%'
+    </select>
+```
+
+当我们带入两个参数时，返回结果不会有问题，可是当我们只带入姓名，不带入性别时，结果就不合理，因为sex带入的null，作为查询条件就过滤了结果，这个时候我们需要if标签。
+
+改造sql
+
+```xml
+<!-- 根据条件查询用户 -->
+<select id="queryUserByWhere" parameterType="user" resultType="user">
+  SELECT id, username, birthday, sex, address FROM `user`
+    WHERE 1=1
+   <if test="sex!=null and sex !=''">
+    AND sex = #{sex}
+   </if>
+   <if test="username!=null and username!=''">
+   AND username like
+   '%${username}%'
+   </if>
+</select>
+```
+
+将接口和方法都加入其中
+
+```Java
+@Test
+public void testQueryUserByWhere() {
+    // mybatis和spring整合，整合之后，交给spring管理
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    // 创建Mapper接口的动态代理对象，整合之后，交给spring管理
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    // 使用userMapper执行根据条件查询用户
+    User user = new User();
+    //user.setSex("1");
+    user.setUsername("张");
+    List<User>list = userMapper.queryUserByWhere(user);
+    for (User u : list) {
+        System.out.println(u);
+    }
+    // mybatis和spring整合，整合之后，交给spring管理
+    sqlSession.close();
+}
+```
+
+结果：
+
+![1555316550632](/1555316550632.png)
+
+此时结果正确，但是我们发现还是有 WHERE 1=1 这行多余代码，这个时候我们可以使用 Where 标签
+
+#### 5.2、 where 标签
+
+where标签会把第一个and忽略，当然如果是or开头的，MyBatis也会把它忽略，此外，在where元素中你不需要考虑空格的问题，MyBatis会智能的帮你加上。
+
+```xml
+<select id="queryUserByWhere1" parameterType="user" resultType="user">
+    SELECT id, username, birthday, sex, address FROM `user`
+    <!-- where标签可以自动添加where，同时处理sql语句中第一个and或者or关键字 -->
+    <where>
+        <if test="sex!=null">
+            AND sex = #{sex}
+        </if>
+        <if test="username!=null and username!=''">
+            AND username like
+            '%${username}%'
+        </if>
+    </where>
+</select>
+```
+
+#### 5.3、 set 标签
+
+在更新的时候我们也需要像where一样能够进行动态判断，这个时候就使用set标签，set会使最后的逗号忽略，我们就可以动态的更新那些修改了的字段。
+
+如下：
+
+```xml
+<update id="dynamicSetTest" parameterType="user">
+    update `user`
+    <set>
+        <if test="sex != null">
+            sex = #{sex},
+        </if>
+        <if test="username!=null and username!=''">
+            username = #{username},
+        </if>
+    </set>
+    where id = #{id}
+</update>
+```
+
+测试：
+
+```java
+@Test
+public void dynamicSetTest() {
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    User user = new User();
+    //user.setSex("1");
+    user.setUsername("袁大大");
+    user.setId(26);
+    userMapper.dynamicSetTest(user);
+    sqlSession.commit();
+    sqlSession.close();
+}
+```
+
+#### 5.4、choose(when,otherwise) 标签
+
+choose的作用类似Java语言中的switch，可以解决我们只想选择一个查询条件的情况。
+
+如下：
+
+```xml
+    <select id="selectUserByChoose" resultType="user" parameterType="user">
+        select id, username, birthday, sex, address FROM `user`
+        <where>
+            <choose>
+                <when test="id !='' and id != null">
+                    id=#{id}
+                </when>
+                <when test="username !='' and username != null">
+                    and username like #{username}
+                </when>
+                <otherwise>
+                    and sex=#{sex}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+```
+
+这个写法很容易理解，与switch相同，匹配成功后就会跳出。
+
+#### 5.5、trim 标签
+
+trim标记是一个格式化的标记，可以完成set或者是where标记的功能，怎么用呢：
+
+增加prefix前缀，去掉第一个prefixoverride中内容。
+
+增加suffix后缀，去掉最后一个suffixoverride中内容。
+
+通过trim可以解决where 与set 问题
+
+```xml
+<select id="selectUserByUsernameAndSex" resultType="user" parameterType="user">
+    select * from user
+    <!-- <where>
+        <if test="username != null">
+           username=#{username}
+        </if>
+
+        <if test="username != null">
+           and sex=#{sex}
+        </if>
+    </where>  -->
+    <trim prefix="where" prefixOverrides="and | or">
+        <if test="username != null">
+            and username=#{username}
+        </if>
+        <if test="sex != null">
+            and sex=#{sex}
+        </if>
+    </trim>
+</select>
+```
+
+ 先增加where,并去掉第一个and 或者or ，替换了where if 写法。
+
+```xml
+<!-- 根据 id 更新 user 表的数据 -->
+    <update id="updateUserById" parameterType="com.ys.po.User">
+        update user u
+            <!-- <set>
+                <if test="username != null and username != ''">
+                    u.username = #{username},
+                </if>
+                <if test="sex != null and sex != ''">
+                    u.sex = #{sex}
+                </if>
+            </set> -->
+            <trim prefix="set" suffixOverrides=",">
+                <if test="username != null and username != ''">
+                    u.username = #{username},
+                </if>
+                <if test="sex != null and sex != ''">
+                    u.sex = #{sex},
+                </if>
+            </trim>
+         
+         where id=#{id}
+    </update>
+```
+
+增加set，并去掉最后一个逗号，替换了set if写法。
+
+#### 5.6 SQL片段
+
+写sql时经常会出现一些重复片段，我们可以进行提取，这样可以做到重用。
+
+先使用sql进行声明
+
+```xml
+<!-- 声明sql片段 -->
+<sql id="userFields">
+  id, username, birthday, sex, address
+</sql>
+```
+
+使用**include refid**
+
+```xml
+<select id="queryUserBySqlWhere" parameterType="user" resultType="user">
+<!-- SELECT id, username, birthday, sex, address FROM `user` -->
+<!-- 使用include标签加载sql片段；refid是sql片段id -->
+SELECT <include refid ="userFields"/> FROM `user`
+<!-- where标签可以自动添加where关键字，同时处理sql语句中第一个and关键字 -->
+<where>
+    <if test="sex != null">
+    AND sex = #{sex}
+</if>
+<if test="username != null and username != ''">
+AND username LIKE
+'%${username}%'
+ </if>
+    </where>
+</select>
+```
+
+#### 5.7 foreach标签
+
+当我们向sql传递数组或List，mybatis使用foreach解析。
+
+- foreach标签，进行遍历
+
+- collection：遍历的集合，这里是QueryVo的ids属性
+
+- item：遍历的项目，可以随便写，，但是和后面的#{}里面要一致
+
+- open：在前面添加的sql片段
+
+- close：在结尾处添加的sql片段
+
+- separator：指定遍历的元素之间使用的分隔符
+
+  ```xml
+  <select id="queryUserByIds" parameterType="com.yuanqinnan.pojo.QueryVo" resultType="user">
+  SELECT * FROM `user`
+  <where>
+      <foreach collection="ids" item="item" open="id IN (" close=")"
+      separator=",">
+      #{item}
+  </foreach>
+  ```
+
+改造QueryVo
+
+```java
+@Data
+public class QueryVo {
+    private User user;
+    private List<Integer> ids;
+}
+```
+
+测试方法：
+
+```java
+@Test
+public void queryUserByIds(){
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    QueryVo user = new QueryVo();
+    List<Integer>ids = new ArrayList<>();
+    ids.add(1);
+    ids.add(10);
+    ids.add(24);
+    user.setIds(ids);
+    List<User> list = userMapper.queryUserByIds(user);
+    for (User u : list) {
+        System.out.println(u);
+    }
+    sqlSession.close();
+}
+```
+
+结果：
+
+![1555328441216](/1555328441216.png)
+
+动态sql其实是一个拼接过程，我们掌握上面这些标签，就能完成mybatis的动态sql

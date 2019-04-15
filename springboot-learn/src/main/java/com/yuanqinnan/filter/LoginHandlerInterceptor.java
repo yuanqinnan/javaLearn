@@ -1,6 +1,6 @@
 package com.yuanqinnan.filter;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * Created by yuanqn on 2019/4/14 20:18
  */
-@Configuration
+@Component
 public class LoginHandlerInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

@@ -28,4 +28,11 @@ public interface UserMapper {
 
     int queryUserCount();
 
+    List<User> queryUserByWhere(User user);
+
+    void dynamicSetTest(User user);
+
+    List<User> selectUserByChoose(User user);
+
+    List<User> queryUserByIds(QueryVo queryVo);
 }
