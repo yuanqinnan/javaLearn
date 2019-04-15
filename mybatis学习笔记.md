@@ -1300,7 +1300,7 @@ public void testQueryAll2() {
 
 当我们带入两个参数时，返回结果不会有问题，可是当我们只带入姓名，不带入性别时，结果就不合理，因为sex带入的null，作为查询条件就过滤了结果，这个时候我们需要if标签。
 
-改造sql
+改造sql：
 
 ```xml
 <!-- 根据条件查询用户 -->
@@ -1496,7 +1496,7 @@ trim标记是一个格式化的标记，可以完成set或者是where标记的�
 
 写sql时经常会出现一些重复片段，我们可以进行提取，这样可以做到重用。
 
-先使用sql进行声明
+先使用sql进行声明：
 
 ```xml
 <!-- 声明sql片段 -->
@@ -1505,7 +1505,7 @@ trim标记是一个格式化的标记，可以完成set或者是where标记的�
 </sql>
 ```
 
-使用**include refid**
+使用**include refid**：
 
 ```xml
 <select id="queryUserBySqlWhere" parameterType="user" resultType="user">
