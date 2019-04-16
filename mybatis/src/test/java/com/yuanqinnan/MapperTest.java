@@ -4,6 +4,7 @@ import com.yuanqinnan.mapper.OrderMapper;
 import com.yuanqinnan.mapper.UserMapper;
 import com.yuanqinnan.model.Order;
 import com.yuanqinnan.model.User;
+import com.yuanqinnan.pojo.OrderUserVO;
 import com.yuanqinnan.pojo.QueryVo;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -216,4 +217,48 @@ public class MapperTest {
         }
         sqlSession.close();
     }
+
+    @Test
+    public void queryOrderUser(){
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+        List<OrderUserVO> list = orderMapper.queryOrderUser();
+        for (OrderUserVO u : list) {
+            System.out.println(u);
+        }
+        sqlSession.close();
+    }
+
+    @Test
+    public void queryOrderUserResultMap(){
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+        List<Order> list = orderMapper.queryOrderUserResultMap();
+        for (Order u : list) {
+            System.out.println(u);
+        }
+        sqlSession.close();
+    }
+    @Test
+    public void queryUserOrder(){
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        List<User> list = userMapper.queryUserOrder();
+        for (User u : list) {
+            System.out.println(u);
+        }
+        sqlSession.close();
+    }
+    @Test
+    public void listOrder(){
+        SqlSession sqlSession = this.sqlSessionFactory.openSession();
+        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+        List<Order> list = orderMapper.listOrder();
+        for (Order u : list) {
+            System.out.println(u);
+        }
+        sqlSession.close();
+    }
+
+
 }

@@ -35,4 +35,6 @@ public interface UserMapper {
     List<User> selectUserByChoose(User user);
 
     List<User> queryUserByIds(QueryVo queryVo);
+
+    List<User> queryUserOrder();
 }

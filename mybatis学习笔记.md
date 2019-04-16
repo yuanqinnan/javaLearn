@@ -28,7 +28,7 @@ typora-root-url: img
 
 #### 1.3 Mybatis架构
 
-![1552397530778](img\架构.png)
+![1552397530778](/架构.png)
 
 1.  mybatis配置
 
@@ -235,7 +235,7 @@ public class User implements Serializable {
 
 整体结构如下：
 
-![1552404114688](img\结构.png)
+![1552404114688](/结构.png)
 
 ##### 第六步：测试
 
@@ -302,7 +302,7 @@ public void testSelectUserAll(){
 
 结果：
 
-![1552487750669](img\查询结果.png)
+![1552487750669](/查询结果.png)
 
 ##### 1.5.2 模糊查询(用${}实现)
 
@@ -334,7 +334,7 @@ public void testSelectLikeUserName(){
 }
 ```
 
-结果：![1552488276835](img\模糊查询1.png)
+结果：![1552488276835](/模糊查询1.png)
 
 ##### 1.5.3 模糊查询(用#{}实现)
 
@@ -630,7 +630,7 @@ Mapper接口开发需要遵循以下规范：
 
 新建mapper包，新增接口UserMapper
 
-![1552791940384](img/1552791940384-1552791942462.png)
+![1552791940384](/1552791940384-1552791942462.png)
 
 内容：
 
@@ -964,7 +964,7 @@ List<User> queryByQo(QueryVo queryVo);
 
 结果如图：
 
-![1553268644089](img/1553268644089.png)
+![1553268644089](/1553268644089.png)
 
 将SqlMapConfig.xml 中其他的配置恢复原先配置，引入mapper方式进行修改
 
@@ -1018,7 +1018,7 @@ public void testQueryUserByUsername2() {
 
 得到测试结果：
 
-![1553269096014](img/1553269096014.png)
+![1553269096014](/1553269096014.png)
 
 输入映射比较简单，一般也不会使用包装类，而是根据需要的条件去设置字段比较好
 
@@ -1075,14 +1075,14 @@ resultType可以指定将查询结果映射为pojo，但需要pojo的属性名�
 
 ```sql
 DROP TABLE IF EXISTS `order`;
-CREATE TABLE `orders` (
+CREATE TABLE `order` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL COMMENT '下单用户id',
   `number` varchar(32) NOT NULL COMMENT '订单号',
   `createtime` datetime NOT NULL COMMENT '创建订单时间',
   `note` varchar(100) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`),
-  KEY `FK_orders_1` (`user_id`),
+  KEY `FK_order_1` (`user_id`),
   CONSTRAINT `FK_order_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
@@ -1587,3 +1587,473 @@ public void queryUserByIds(){
 ![1555328441216](/1555328441216.png)
 
 动态sql其实是一个拼接过程，我们掌握上面这些标签，就能完成mybatis的动态sql
+
+### 六、关联查询
+
+通过动态SQL我们可以进行复杂SQL的编写，但之前的例子都是单表查询，在实际开发中，当然不可能都是单表，很多时候我们需要进行关联多表查询（有些公司为了性能还是尽量的使用单表查询），表与表之间的关系分为一对一，一对多，多对多，我们讲讲这三种是如何编写的。
+
+先进行表和实体的创建：
+
+```sql
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(32) NOT NULL COMMENT '用户名称',
+  `birthday` date DEFAULT NULL COMMENT '生日',
+  `sex` char(1) DEFAULT NULL COMMENT '性别',
+  `address` varchar(256) DEFAULT NULL COMMENT '地址',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+INSERT INTO `user` VALUES ('1', '王五', null, '2', null);
+INSERT INTO `user` VALUES ('10', '张三', '2014-07-10', '1', '北京市');
+INSERT INTO `user` VALUES ('16', '张小明', null, '1', '河南郑州');
+INSERT INTO `user` VALUES ('22', '陈小明', null, '1', '河南郑州');
+INSERT INTO `user` VALUES ('24', '张三丰', null, '1', '河南郑州');
+INSERT INTO `user` VALUES ('25', '陈小明', null, '1', '河南郑州');
+INSERT INTO `user` VALUES ('26', '王五', null, null, null);
+
+DROP TABLE IF EXISTS `order`;
+CREATE TABLE `order` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL COMMENT '下单用户id',
+  `number` varchar(32) NOT NULL COMMENT '订单号',
+  `createtime` datetime NOT NULL COMMENT '创建订单时间',
+  `note` varchar(100) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `FK_order_1` (`user_id`),
+  CONSTRAINT `FK_order_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of order
+-- ----------------------------
+INSERT INTO `order` VALUES ('3', '1', '1000010', '2015-02-04 13:22:35', null);
+INSERT INTO `order` VALUES ('4', '1', '1000011', '2015-02-03 13:22:41', null);
+INSERT INTO `order` VALUES ('5', '10', '1000012', '2015-02-12 16:13:23', null);
+
+```
+
+User：
+
+```java
+@Data
+public class User implements Serializable {
+    private Integer id;
+    // 用户姓名
+    private String username;
+    // 性别
+    private String sex;
+    // 生日
+    private Date birthday;
+    // 地址
+    private String address;
+}
+```
+
+Order：
+
+```Java
+@Data
+public class Order {
+
+    // 订单id
+    private int id;
+    // 用户id
+    private Integer userId;
+    // 订单号
+    private String number;
+    // 订单创建时间
+    private Date createtime;
+    // 备注
+    private String note;
+}
+```
+
+#### 6.1、 一对一
+
+订单表与用户表，一个订单是由一个客户创建的，当我们通过订单去反查用户时，就是一对一关系。
+
+有两种方式可以实现
+
+##### 6.1.1、使用resultType
+
+可以改造订单pojo类，此pojo类中包括了订单信息和用户信息，这样返回对象的时候，mybatis自动把用户信息也注入进来了，创建OrderUserVO：
+
+```Java
+@Data
+public class OrderUserVO extends Order {
+    /**
+     * 客户名称
+    */
+    private String username;
+    /**
+     * 客户地址
+    */
+    private String address;  
+}
+```
+
+xml文件：
+
+```xml
+  <select id="queryOrderUser" resultType="com.yuanqinnan.pojo.OrderUserVO">
+    SELECTo.id,o.user_id,userId,o.number,o.createtime,o.note,u.username,u.address
+    FROM
+    `order` o
+    LEFT JOIN `user` u ON o.user_id = u.id
+  </select>
+```
+
+接口：
+
+```java
+public interface OrderMapper {
+    List<Order> queryOrderAll();
+    List<Order> queryOrderAll2();
+    List<OrderUserVO> queryOrderUser();
+}
+```
+
+测试：
+
+```java
+@Test
+public void queryOrderUser(){
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+    List<OrderUserVO> list = orderMapper.queryOrderUser();
+    for (OrderUserVO u : list) {
+        System.out.println(u);
+    }
+    sqlSession.close();
+}
+```
+
+结果：
+
+![](/1555380944308.png)
+
+定义专门的pojo类作为输出类型，其中定义了sql查询结果集所有的字段。此方法较为简单，企业中使用普遍。
+
+##### 6.1.2 、使用resultMap
+
+使用resultMap，定义专门的resultMap用于映射一对一查询结果，改造Order类，在Order类中加入User属性，user属性中用于存储关联查询的用户信息，因为订单关联查询用户是一对一关系，所以这里使用单个User对象存储关联查询的用户信息。
+
+```java
+@Data
+public class Order {
+
+    // 订单id
+    private int id;
+    // 用户id
+    private Integer userId;
+    // 订单号
+    private String number;
+    // 订单创建时间
+    private Date createtime;
+    // 备注
+    private String note;
+    /**
+     * 客户
+    */
+    private User user;
+}
+```
+
+先定义resultMap
+
+```xml
+<resultMap type="com.yuanqinnan.model.Order" id="orderUserResultMap">
+    <id property="id" column="id"/>
+    <result property="userId" column="user_id"/>
+    <result property="number" column="number"/>
+    <result property="createtime" column="createtime"/>
+    <result property="note" column="note"/>
+    <!-- association ：配置一对一属性 -->
+    <!-- property:order里面的User属性名 -->
+    <!-- javaType:属性类型 -->
+    <association property="user" javaType="user">
+        <!-- id:声明主键，表示user_id是关联查询对象的唯一标识-->
+        <id property="id" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="address" column="address"/>
+    </association>
+
+</resultMap>
+```
+
+再添加查询
+
+```xml
+    <!-- 一对一关联，查询订单，订单内部包含用户属性 -->
+ <select id="queryOrderUserResultMap" resultMap="orderUserResultMap">
+    SELECT o.id,o.user_id,o.number,o.createtime,o.note,u.username,u.address
+    FROM
+    `order` o
+    LEFT JOIN `user` u ON o.user_id = u.id
+</select>
+```
+
+接口：
+
+```java
+List<Order> queryOrderUserResultMap();
+```
+
+测试：
+
+```java
+@Test
+public void queryOrderUserResultMap(){
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+    List<Order> list = orderMapper.queryOrderUserResultMap();
+    for (Order u : list) {
+        System.out.println(u);
+    }
+    sqlSession.close();
+}
+```
+
+结果：
+
+![1555383183028](/1555383183028.png)
+
+#### 6.2、一对多
+
+一个客户会创建多个订单，当我们查询客户订单时，就会产生一对多的情况，我们以此为例。
+
+首先，我们在User类中增加订单列表
+
+```java
+@Data
+public class User implements Serializable {
+
+    //id
+    private Integer id;
+    //用户姓名
+    private String username;
+    //性别
+    private String sex;
+    //生日
+    private Date birthday;
+    //地址
+    private String address;
+    //订单列表
+    private List<Order> orderList;
+}
+```
+
+然后增加resultMap
+
+```xml
+<resultMap type="com.yuanqinnan.model.Order" id="orderUserResultMap">
+    <id property="id" column="id"/>
+    <result property="userId" column="user_id"/>
+    <result property="number" column="number"/>
+    <result property="createtime" column="createtime"/>
+    <result property="note" column="note"/>
+
+    <!-- association ：配置一对一属性 -->
+    <!-- property:order里面的User属性名 -->
+    <!-- javaType:属性类型 -->
+    <association property="user" javaType="user">
+        <!-- id:声明主键，表示user_id是关联查询对象的唯一标识-->
+        <id property="id" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="address" column="address"/>
+    </association>
+
+</resultMap>
+```
+
+增加查询：
+
+```xml
+    <!-- 一对一关联，查询订单，订单内部包含用户属性 -->
+ <select id="queryOrderUserResultMap" resultMap="orderUserResultMap">
+    SELECT o.id,o.user_id,o.number,o.createtime,o.note,u.username,u.address
+    FROM
+    `order` o
+    LEFT JOIN `user` u ON o.user_id = u.id
+</select>
+```
+
+测试：
+
+```java
+@Test
+public void queryUserOrder(){
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    List<User> list = userMapper.queryUserOrder();
+    for (User u : list) {
+        System.out.println(u);
+    }
+    sqlSession.close();
+}
+```
+
+结果：
+
+![1555385118777](/1555385118777.png)
+
+#### 6.3、多对多
+
+多对多关系都需要中间表来维护，例如，一个订单包含多个产品，一种产品又可以出现在多个订单中，那这个时候我们就需要一个订单产品表作为中间表。这样我们需要新增两个表，产品表和订单产品表。
+
+```sql
+CREATE TABLE `product` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL COMMENT '产品名称',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf;
+
+-- ----------------------------
+-- Records of product
+-- ---------------------------
+INSERT INTO product VALUES('1','笔记本电脑');
+INSERT INTO product VALUES('2','小米手机');
+
+CREATE TABLE `order_product` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `oid` int(11) DEFAULT NULL COMMENT '订单id',
+  `pid` int(11) DEFAULT NULL COMMENT '产品id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
+-- ----------------------------
+-- Records of order_product
+-- ---------------------------
+INSERT INTO order_product VALUES('1','3','1');
+INSERT INTO order_product VALUES('2','3','2');
+INSERT INTO order_product VALUES('3','4','1');
+
+```
+
+我们可能遇到的多对多查询是：查询这个订单的所有产品或者查询这个产品的所有订单
+
+那这个时候我们的订单和产品表里都应该对应多个中间表，实体就应该这么设计：
+
+order实体增加中间表
+
+```java
+@Data
+public class Order {
+
+    // 订单id
+    private int id;
+    // 用户id
+    private Integer userId;
+    // 订单号
+    private String number;
+    // 订单创建时间
+    private Date createtime;
+    // 备注
+    private String note;
+    //客户
+    private User user;
+    //中间表
+    private List<OrderProduct> products;
+
+}
+```
+
+OrderProduct：
+
+```java
+@Data
+public class OrderProduct {
+
+    private Integer id;
+    //订单主键
+    private Integer oid;
+    //产品主键
+    private Integer pid;
+    //订单
+    private Order order;
+    //产品
+    private Product product;
+}
+```
+
+product：
+
+```Java
+@Data
+public class Product {
+    //产品id
+    private Integer id;
+    //产品名称
+    private String name;
+    //中间表
+    List<OrderProduct> orders;
+}
+```
+
+rresultmap:
+
+```sql
+<resultMap type="com.yuanqinnan.model.Order" id="orderBean">
+    <id column="id" property="id"/>
+    <result property="userId" column="user_id"/>
+    <result property="number" column="number"/>
+    <result property="createtime" column="createtime"/>
+    <result property="note" column="note"/>
+
+    <collection property="products" ofType="com.yuanqinnan.model.OrderProduct">
+        <id column="oiid" property="id"/>
+        <result column="oid" property="oid"/>
+        <result column="pid" property="pid"/>
+        <association property="product" javaType="com.yuanqinnan.model.Product">
+            <id column="pid" property="id"/>
+            <result column="pname" property="name"/>
+        </association>
+    </collection>
+</resultMap>
+```
+
+新增查询订单的产品信息方法：
+
+```xml
+<select id="listOrder" resultMap="orderBean">
+    SELECT
+        o.*,
+        o.id oid,
+        p.id pid,
+        oi.id oiid,
+        p.NAME pname
+    FROM
+        `order` o
+        LEFT JOIN order_product oi ON o.id = oi.oid
+        LEFT JOIN product p ON p.id = oi.pid
+</select>
+```
+
+测试：
+
+```java
+@Test
+public void listOrder(){
+    SqlSession sqlSession = this.sqlSessionFactory.openSession();
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+    List<Order> list = orderMapper.listOrder();
+    for (Order u : list) {
+        System.out.println(u);
+    }
+    sqlSession.close();
+}
+```
+
+结果：
+
+![1555404764266](/1555404764266.png)
+
+
+
+
+
+
+
