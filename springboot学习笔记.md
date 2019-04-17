@@ -906,12 +906,12 @@ public class WebConfig implements WebMvcConfigurer {
 
 web系统一般少不了登录页面，我们先设定默认页面为登录页。
 
-##### 4.5.1 登录方法
-
-```java
+```
 registry.addViewController("/").setViewName("login");
 registry.addViewController("/index.html").setViewName("login");
 ```
+
+##### 4.5.1 登录方法
 
  具体登录html的代码就不贴了，可以下载源码查看，新建controller
 
@@ -960,7 +960,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 }
 ```
 
-然后在加入配置
+然后再加入配置
 
 ```java
 @Configuration
@@ -997,7 +997,7 @@ springboot有自身的默认错误处理机制，分为两种
 
 ##### 4.6.2 定制错误响应
 
-定制错误响应也分为两种，一种是定制错误页面，第二种是定制错误json数据
+定制错误响应也分为两种，一种是定制错误页面，第二种是定制错误json数据。
 
 ###### 4.6.2.1 定制错误页面
 
@@ -1023,7 +1023,7 @@ springboot有自身的默认错误处理机制，分为两种
 public class GlobalDefaultExceptionHandler {
 
     @ExceptionHandler(value = RequestException.class)
-    public String requestExceptionHandler(RequestException e){
+    public String requestExceptionHandler(RequestException e,HttpServletRequest request){
         Map<String,Object> map = new HashMap<>();
         //传入我们自己的错误状态码  4xx 5xx，否则就不会进入定制错误页面的解析流程
         request.setAttribute("javax.servlet.error.status_code",500);
@@ -1035,17 +1035,178 @@ public class GlobalDefaultExceptionHandler {
 }
 ```
 
+以上是我们在web开发需要先掌握的一些基本技术，有了这些基本知识之后，我们就可以进行一些CRUD开发，当然在实际的开发中，不管是登录拦截还是错误处理都比这个要复杂，我们以后再详讲。
 
+### 五、配置嵌入式Servlet容器
 
+springboot默认使用Tomcat作为嵌入式的Servlet容器，我们既可以修改Tomcat的一些属性配置，也可以使用其他的Servlet容器，我们这篇就来学习嵌入式Servlet容器的配置。
 
+#### 5.1 定制和修改Servlet容器的相关配置
 
+servlet的配置类为**ServerProperties**，进入代码可以看到server能够配置的属性，我们可以对此进行修改。
 
+```java
+@ConfigurationProperties(prefix = "server", ignoreUnknownFields = true)
+public class ServerProperties {
+```
 
+我们既可以修改通用的Servlet容器设置，如：
 
+```yaml
+server:
+  port: 8089
+```
 
-##### 
+ 也可以修改某一种容器的配置，如：
 
+```yaml
+server:
+  tomcat:
+    uri-encoding: utf-8
+```
 
+#### 5.2 注册Servlet三大组件【Servlet、Filter、Listener】
+
+注册三大组件用以下方式：
+
+Servlet：**ServletRegistrationBean**
+
+创建一个MyServlet类：
+
+```java
+public class MyServlet extends HttpServlet {
+    @Override
+   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doPost(req,resp);
+    }
+    @Override
+   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+       resp.getWriter().write("hello MyServlet");
+    }
+}
+```
+
+注入容器：
+
+```java
+@Bean
+public ServletRegistrationBean myServlet(){
+    ServletRegistrationBean registrationBean = new ServletRegistrationBean(new MyServlet(),"/myServlet");
+    return registrationBean;
+}
+```
+
+Filter：**FilterRegistrationBean**
+
+创建MyFilter：
+
+```java
+public class MyFilter implements Filter {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        System.out.println("My filter process");
+        filterChain.doFilter(servletRequest,servletResponse);
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+}
+```
+
+注入容器：
+
+```java
+@Bean
+public FilterRegistrationBean myFilter(){
+    FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+    registrationBean.setFilter(new MyFilter());
+    registrationBean.setUrlPatterns(Arrays.asList("/hello","/myServlet"));
+    return registrationBean;
+}
+```
+
+Listener：**ServletListenerRegistrationBean**
+
+创建MyListener：
+
+```java
+public class MyListener implements ServletContextListener {
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("contextInitialized ...web启动");
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        System.out.println("contextDestroyed ...web销毁");
+    }
+}
+```
+
+注入容器
+
+```java
+@Bean
+public ServletListenerRegistrationBean myListener(){
+    ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(new MyListener());
+    return registrationBean;
+}
+```
+
+#### 5.3 替换为其他嵌入式Servlet容器
+
+springboot默认为tomcat容器，要替换其他容器就必须修改pom依赖
+
+Jetty：
+
+```xml
+<!-- 引入web模块 -->
+<dependency>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring-boot-starter-web</artifactId>
+   <exclusions>
+      <exclusion>
+         <artifactId>spring-boot-starter-tomcat</artifactId>
+         <groupId>org.springframework.boot</groupId>
+      </exclusion>
+   </exclusions>
+</dependency>
+
+<!--引入其他的Servlet容器-->
+<dependency>
+   <artifactId>spring-boot-starter-jetty</artifactId>
+   <groupId>org.springframework.boot</groupId>
+</dependency>
+```
+
+Undertow
+
+```xml
+<!-- 引入web模块 -->
+<dependency>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring-boot-starter-web</artifactId>
+   <exclusions>
+      <exclusion>
+         <artifactId>spring-boot-starter-tomcat</artifactId>
+         <groupId>org.springframework.boot</groupId>
+      </exclusion>
+   </exclusions>
+</dependency>
+
+<!--引入其他的Servlet容器-->
+<dependency>
+   <artifactId>spring-boot-starter-undertow</artifactId>
+   <groupId>org.springframework.boot</groupId>
+</dependency>
+```
 
 
 
