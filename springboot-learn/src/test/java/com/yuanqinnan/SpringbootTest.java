@@ -1,7 +1,11 @@
 package com.yuanqinnan;
 
+import com.yuanqinnan.entities.Department;
+import com.yuanqinnan.entities.Order;
+import com.yuanqinnan.mapper.DepartmentMapper;
 import com.yuanqinnan.mapper.UserMapper;
 import com.yuanqinnan.model.User;
+import com.yuanqinnan.repository.OrderRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +50,24 @@ public class SpringbootTest {
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    DepartmentMapper departmentMapper;
+
     @Test
     public void mybatisTest(){
-        User userById = userMapper.getUserById(1);
+        Department deptById = departmentMapper.getDeptById(1);
+        System.out.println(deptById);
+        User userById = userMapper.queryUserById(1);
         System.out.println(userById);
+    }
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Test
+    public void jpaTest(){
+        List<Order> all = orderRepository.findAll();
+        System.out.println(all);
+
     }
 }
