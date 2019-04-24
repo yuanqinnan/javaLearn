@@ -4,17 +4,130 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Scanner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BaseApi {
 
-    public static void main(String[] str) throws IOException {
+    public static void main(String[] str) throws IOException, ParseException {
         //scanner();
         //system();
         //runtime();
-        string();
+        //string();
+        //math();
+        //random();
+        //date();
+        //pattern();
+        dataFormat();
+
+
+    }
+
+    private static void dataFormat() throws ParseException {
+        //将日期转换成固定格式
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        System.out.println(simpleDateFormat.format(date));
+        //日期字符串
+        String str = "14###三月##21";
+        SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("y###MMM##d");
+        //将日期字符串解析成日期，主要格式要匹配的上，不然会报错
+        System.out.println(simpleDateFormat.format(simpleDateFormat1.parse(str)));
+
+        DateTimeFormatter[] formatters=new DateTimeFormatter[]{
+                //常量创建
+                DateTimeFormatter.ISO_DATE_TIME,
+                DateTimeFormatter.ISO_LOCAL_DATE,
+                DateTimeFormatter.ISO_DATE,
+                //枚举值创建
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL,FormatStyle.MEDIUM),
+                DateTimeFormatter.ofPattern("Gyyyy%%MMM%%dd")
+        };
+        LocalDateTime localDate = LocalDateTime.now();
+
+        for (int i = 0; i <formatters.length ; i++) {
+            //两种方式格式化日期
+            System.out.println(formatters[i].format(localDate));
+            System.out.println(localDate.format(formatters[i]));
+        }
+
+    }
+
+    private static void pattern() {
+        //将字符串编译成Pattern对象
+        Pattern pattern = Pattern.compile("a*b");
+        //使用Pattern创建Matcher对象
+        Matcher matcher = pattern.matcher("aaaaab");
+        System.out.println(matcher.matches());
+        //只能使用一次，效率不高
+        Pattern.matches("a*b", "aaabbb");
+        String s = "XXX:13892329111,XXX:18922121231,XXX:13824322341";
+        Matcher matcher1 = Pattern.compile("1\\d{10}").matcher(s);
+        //返回目标字符串中是否包含匹配的字串
+        while (matcher1.find()) {
+            //返回上一次匹配的字串
+            System.out.println(matcher1.group());
+        }
+    }
+
+    private static void date() {
+        Date date = new Date();
+        Date date1 = new Date(System.currentTimeMillis() + 100);
+        //测试该日期是否在指定日期之后
+        System.out.println(date.after(date1));
+        //比较日期大小
+        System.out.println(date.compareTo(date1));
+        Calendar calendar = Calendar.getInstance();
+        Date date2 = calendar.getTime();
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTime(date2);
+        //给指定的字段增加或者减去时间量，如果指定量超过最大值，则进位
+        calendar.add(Calendar.YEAR, 1);
+        //获取指定的字段值
+        System.out.println(calendar.get(Calendar.YEAR));
+        System.out.println(calendar.get(Calendar.MONTH));
+        System.out.println(calendar.get(Calendar.DATE));
+        //设置日期值
+        calendar.set(2003, 10, 2, 10, 50, 10);
+        //给指定的字段增加或者减去时间量，如果指定量超过最大值，不进位
+        calendar.roll(Calendar.YEAR, 13);
+        //Clock的用法
+        Clock clock = Clock.systemUTC();
+        System.out.println(clock.instant());
+        System.out.println(clock.millis());
+        Duration duration = Duration.ofSeconds(6000);
+
+    }
+
+    private static void random() {
+        Random random = new Random();
+        //生成一个int范围内的随机数
+        System.out.println(random.nextInt());
+        //生成0-30范围的随机数
+        System.out.println(random.nextInt(30));
+        //生成0.0-1.0 的随机数
+        System.out.println(random.nextDouble());
+    }
+
+    private static void math() {
+        //返回小于目标数的最大整数
+        System.out.println(Math.floor(-1.57));
+        //返回大于目标数的最小整数
+        System.out.println(Math.ceil(1.57));
+        //四舍五入
+        System.out.println(Math.round(2.3));
+        //取绝对值
+        System.out.println(Math.abs(-4.6));
+        //取最大数
+        System.out.println(Math.max(1, 3));
     }
 
     private static void string() {
@@ -81,7 +194,7 @@ public class BaseApi {
         System.out.println(substring1);
         char[] chars = s.toCharArray();
         //转换成char数组
-        for (int i = 0; i <chars.length ; i++) {
+        for (int i = 0; i < chars.length; i++) {
             System.out.println(chars[i]);
         }
         //将字符串转换成小写
@@ -90,21 +203,21 @@ public class BaseApi {
         //将字符串转换成大写
         String upperCase = s.toUpperCase();
         System.out.println(upperCase);
-        StringBuilder sb=new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         //追加
         sb.append("java");
         System.out.println(sb);
         //插入
-        sb.insert(0,"hello ");
+        sb.insert(0, "hello ");
         System.out.println(sb);
         //替换
-        sb.replace(5,6,",");
+        sb.replace(5, 6, ",");
         System.out.println(sb);
         //反转
         sb.reverse();
         System.out.println(sb);
         //长度与容量
-        System.out.println(sb.length()+ sb.capacity());
+        System.out.println(sb.length() + sb.capacity());
         //StringBuffer stringBuffer=new StringBuffer();
 
 
