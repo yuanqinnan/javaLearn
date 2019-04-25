@@ -42,18 +42,18 @@ public class BaseApi {
         //将日期字符串解析成日期，主要格式要匹配的上，不然会报错
         System.out.println(simpleDateFormat.format(simpleDateFormat1.parse(str)));
 
-        DateTimeFormatter[] formatters=new DateTimeFormatter[]{
+        DateTimeFormatter[] formatters = new DateTimeFormatter[]{
                 //常量创建
                 DateTimeFormatter.ISO_DATE_TIME,
                 DateTimeFormatter.ISO_LOCAL_DATE,
                 DateTimeFormatter.ISO_DATE,
                 //枚举值创建
-                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL,FormatStyle.MEDIUM),
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.MEDIUM),
                 DateTimeFormatter.ofPattern("Gyyyy%%MMM%%dd")
         };
         LocalDateTime localDate = LocalDateTime.now();
 
-        for (int i = 0; i <formatters.length ; i++) {
+        for (int i = 0; i < formatters.length; i++) {
             //两种方式格式化日期
             System.out.println(formatters[i].format(localDate));
             System.out.println(localDate.format(formatters[i]));
