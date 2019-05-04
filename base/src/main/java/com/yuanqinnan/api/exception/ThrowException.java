@@ -1,7 +1,7 @@
 package com.yuanqinnan.api.exception;
 
 
-public class throwException {
+public class ThrowException {
     public static void main(String[] args) {
         try {
             //检查时异常需要写try catch
@@ -23,4 +23,5 @@ public class throwException {
             throw new RuntimeException("用户不存在");
         }
     }
+
 }
