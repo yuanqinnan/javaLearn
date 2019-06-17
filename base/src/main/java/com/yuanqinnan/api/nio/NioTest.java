@@ -5,14 +5,83 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
 
 public class NioTest {
     public static void main(String[] str) throws IOException {
+        //channel();
+        //charset();
+        //files();
+        BasicFileAttributeView baseView = Files.getFileAttributeView(Paths.get("poem.txt"), BasicFileAttributeView.class);
+        BasicFileAttributes basicFileAttributes = baseView.readAttributes();
+        System.out.println("创建时间：" + basicFileAttributes.creationTime().toMillis());
+        System.out.println("最后更新时间：" + basicFileAttributes.lastModifiedTime().toMillis());
+        return;
+
+    }
+
+    private static void files() throws IOException {
+        Path path = Paths.get(".");
+        System.out.println("path包含的文件数量：" + path.getNameCount());
+        System.out.println("path的根路径：" + path.getRoot());
+        Path path1 = path.toAbsolutePath();
+        System.out.println("path的绝对路径：" + path1);
+        //多个String构建路径
+        Path path2 = Paths.get("G:", "test", "codes");
+        System.out.println("path2的路径：" + path2);
+
+        System.out.println("StreamTest.java是否为隐藏文件:" + Files.isHidden(Paths.get("StreamTest.java")));
+        //一次性读取所有行
+        List<String> allLines = Files.readAllLines(Paths.get("StreamTest.java"), Charset.forName("gbk"));
+        System.out.println(allLines);
+        //读取大小
+        System.out.println("StreamTest.java文件大小：" + Files.size(Paths.get("StreamTest.java")));
+        List<String> poem = new ArrayList<>();
+        poem.add("问君能有几多愁");
+        poem.add("恰似一江春水向东流");
+        //一次性写入数据
+        Files.write(Paths.get("poem.txt"), poem, Charset.forName("gbk"));
+    }
+
+    private static void charset() throws CharacterCodingException {
+        SortedMap<String, Charset> stringCharsetSortedMap = Charset.availableCharsets();
+        for (String name : stringCharsetSortedMap.keySet()) {
+            System.out.println(name);
+        }
+        //创建简体中文对应的Charset
+        Charset cn = Charset.forName("GBK");
+        //创建对应的编码器及解码器
+        CharsetEncoder cnEncoder = cn.newEncoder();
+        CharsetDecoder cnDecoder = cn.newDecoder();
+        CharBuffer buff = CharBuffer.allocate(8);
+        buff.put('李');
+        buff.put('白');
+        buff.flip();
+        //将buff的字符转成字节序列
+        ByteBuffer bbuff = cnEncoder.encode(buff);
+        for (int i = 0; i < bbuff.capacity(); i++) {
+            System.out.print(bbuff.get(i) + " ");
+        }
+        //将bbuff的数据解码成字符
+        System.out.println("\n" + cnDecoder.decode(bbuff));
+    }
+
+    private static void channel() throws IOException {
         //buffer();
         File file = new File("StreamTest.java");
         //输入流创建FileChannel
@@ -29,7 +98,6 @@ public class NioTest {
         //转换成CharBuffer进行输出
         CharBuffer charBuffer = charsetDecoder.decode(buffer);
         System.out.println(charBuffer);
-
     }
 
     private static void buffer() {
