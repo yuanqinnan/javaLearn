@@ -13,40 +13,18 @@ public class StreamTest {
 
         //pushReader();
 
-        //random();
-        //创建输出流
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("object.txt"));
-        Person person = new Person("张三", 10);
-        //将person写入文件中
-        objectOutputStream.writeObject(person);
-        //创建输入流
-        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("object.txt"));
-        try {
-            //读出数据
-            Person p = (Person) objectInputStream.readObject();
-            System.out.println(p);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return;
-
-    }
-
-    private static void random() throws IOException {
         RandomAccessFile raf = new RandomAccessFile("StreamTest.java", "r");
         System.out.println("文件指针的初始位置：" + raf.getFilePointer());
-        //移动指针位置
         raf.seek(300);
         byte[] buf = new byte[1024];
         int hasRead = 0;
         while ((hasRead = raf.read(buf)) > 0) {
-            //读取数据
             System.out.println(new String(buf, 0, hasRead));
         }
-        RandomAccessFile randomAccessFile = new RandomAccessFile("out.txt", "rw");
-        randomAccessFile.setLength(randomAccessFile.length());
-        randomAccessFile.write("追加的内容！\r\n".getBytes());
+//        RandomAccessFile randomAccessFile=new RandomAccessFile("out.txt","rw");
+//        randomAccessFile.setLength(randomAccessFile.length());
+//        randomAccessFile.write("追加的内容！\r\n".getBytes());
+
     }
 
     private static void pushReader() throws IOException {

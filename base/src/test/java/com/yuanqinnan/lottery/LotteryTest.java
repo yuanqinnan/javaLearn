@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LotteryTest{
+public class LotteryTest {
 
     @Test
     public void test() {

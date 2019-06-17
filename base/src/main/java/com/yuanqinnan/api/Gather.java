@@ -58,7 +58,7 @@ public class Gather {
         list.add(5);
         list.add(10);
         list.add(7);
-        System.out.println(list.get(2)+3);
+        System.out.println(list.get(2) + 3);
         System.out.println("----自然排序----");
         //自然排序
         Collections.sort(list);

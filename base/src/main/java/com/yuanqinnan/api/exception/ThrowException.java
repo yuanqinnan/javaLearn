@@ -13,11 +13,13 @@ public class ThrowException {
         test2();
 
     }
+
     public static void test1() throws Exception {
         if (1 > 0) {
             throw new Exception("用户不存在");
         }
     }
+
     public static void test2() {
         if (1 > 0) {
             throw new RuntimeException("用户不存在");
