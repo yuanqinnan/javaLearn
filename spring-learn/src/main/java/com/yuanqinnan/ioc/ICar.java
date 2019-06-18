@@ -7,5 +7,5 @@ package com.yuanqinnan.ioc;
  */
 public interface ICar {
 
-     String getCarName();
+    String getCarName();
 }

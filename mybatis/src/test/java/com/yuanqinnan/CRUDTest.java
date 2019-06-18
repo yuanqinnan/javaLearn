@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class CRUDTest {
     //定义 SqlSession
-    SqlSession session =null;
+    SqlSession session = null;
 
     @Before
-    public void init(){
+    public void init() {
         //定义mybatis全局配置文件
         String resource = "config/SqlMapConfig.xml";
         //加载 mybatis 全局配置文件
@@ -34,7 +34,7 @@ public class CRUDTest {
 
     //根据id查询user表数据
     @Test
-    public void testSelectUserById(){
+    public void testSelectUserById() {
         String statement = "queryUserById";
         User user = session.selectOne(statement, 1);
         System.out.println(user);
@@ -43,10 +43,10 @@ public class CRUDTest {
 
     //查询所有user表所有数据
     @Test
-    public void testSelectUserAll(){
+    public void testSelectUserAll() {
         String statement = "selectUserAll";
         List<User> listUser = session.selectList(statement);
-        for(User user : listUser){
+        for (User user : listUser) {
             System.out.println(user);
         }
         session.close();
@@ -54,29 +54,31 @@ public class CRUDTest {
 
     //模糊查询：根据 user 表的username字段(用${}实现)
     @Test
-    public void testSelectLikeUserName(){
+    public void testSelectLikeUserName() {
         String statement = "selectLikeUserName";
         List<User> listUser = session.selectList(statement, "三");
-        for(User user : listUser){
+        for (User user : listUser) {
             System.out.println(user);
         }
         session.close();
 
     }
+
     //模糊查询：根据 user 表的username字段(用#{}实现)
     @Test
-    public void testSelectLikeUserName2(){
+    public void testSelectLikeUserName2() {
         String statement = "selectLikeUserName2";
         List<User> listUser = session.selectList(statement, "%三%");
-        for(User user : listUser){
+        for (User user : listUser) {
             System.out.println(user);
         }
         session.close();
 
     }
+
     //向 user 表中插入一条数据
     @Test
-    public void testInsertUser(){
+    public void testInsertUser() {
         String statement = "insertUser";
         User user = new User();
         user.setUsername("袁帅");
@@ -88,7 +90,7 @@ public class CRUDTest {
     }
 
     @Test
-    public void testInsertUser2(){
+    public void testInsertUser2() {
         String statement = "saveUser";
         User user = new User();
         user.setUsername("袁大帅");
@@ -99,9 +101,10 @@ public class CRUDTest {
         session.commit();
         session.close();
     }
+
     //根据 id 更新 user 表的数据
     @Test
-    public void testUpdateUserById(){
+    public void testUpdateUserById() {
         String statement = "updateUserById";
         //如果设置的 id不存在，那么数据库没有数据更改
         User user = new User();
@@ -115,9 +118,9 @@ public class CRUDTest {
 
     //根据 id 删除 user 表的数据
     @Test
-    public void testDeleteUserById(){
+    public void testDeleteUserById() {
         String statement = "deleteUserById";
-        session.delete(statement,29);
+        session.delete(statement, 29);
         session.commit();
         session.close();
     }

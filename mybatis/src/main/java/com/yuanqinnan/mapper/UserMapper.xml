@@ -5,8 +5,8 @@
 <!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
 <mapper namespace="com.yuanqinnan.mapper.UserMapper">
     <select id="queryUserById" parameterType="int" resultType="user">
-    SELECT * FROM `user`where id=#{id}
-   </select>
+        SELECT * FROM `user`where id=#{id}
+    </select>
     <!-- 查询 user 表的所有数据-->
     <select id="selectUserAll" resultType="com.yuanqinnan.model.User">
         select * from user
@@ -26,7 +26,7 @@
     <!-- 向 user 表插入一条数据 -->
     <insert id="insertUser" parameterType="com.yuanqinnan.model.User">
         insert into user(id,username,sex,birthday,address)
-            value(#{id},#{username},#{sex},#{birthday},#{address})
+        value(#{id},#{username},#{sex},#{birthday},#{address})
     </insert>
     <!-- 保存用户 -->
     <insert id="saveUser" parameterType="com.yuanqinnan.model.User">
@@ -54,7 +54,7 @@
     </delete>
 
     <select id="queryByQo" parameterType="com.yuanqinnan.pojo.QueryVo" resultType="com.yuanqinnan.model.User">
-        SELECT * from user  where username like '%${user.username}%'
+        SELECT * from user where username like '%${user.username}%'
     </select>
     <select id="queryUserCount" resultType="int">
         select count(*) from user
@@ -138,7 +138,7 @@
 
     <!-- 声明sql片段 -->
     <sql id="userFields">
-      id, username, birthday, sex, address
+        id, username, birthday, sex, address
     </sql>
 
     <select id="queryUserBySqlWhere" parameterType="user" resultType="user">
@@ -191,11 +191,11 @@
     </resultMap>
     <!-- 一对多关联，查询订单同时查询该用户下的订单 -->
     <select id="queryUserOrder" resultMap="userOrderResultMap">
-    SELECT u.id,u.username,u.birthday,u.sex,u.address,o.id oid,o.number,o.createtime,o.note
-    FROM
-    `user` u
-    LEFT JOIN `order` o ON u.id = o.user_id
-</select>
+        SELECT u.id,u.username,u.birthday,u.sex,u.address,o.id oid,o.number,o.createtime,o.note
+        FROM
+        `user` u
+        LEFT JOIN `order` o ON u.id = o.user_id
+    </select>
 
 
 </mapper>

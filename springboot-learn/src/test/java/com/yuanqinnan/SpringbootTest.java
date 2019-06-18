@@ -42,7 +42,7 @@ public class SpringbootTest {
     JdbcTemplate jdbcTemplate;
 
     @Test
-    public void jdbcTest(){
+    public void jdbcTest() {
         List<Map<String, Object>> mapList = jdbcTemplate.queryForList("select * from user ");
         System.out.println(mapList.get(0));
     }
@@ -54,7 +54,7 @@ public class SpringbootTest {
     DepartmentMapper departmentMapper;
 
     @Test
-    public void mybatisTest(){
+    public void mybatisTest() {
         Department deptById = departmentMapper.getDeptById(1);
         System.out.println(deptById);
         User userById = userMapper.queryUserById(1);
@@ -65,7 +65,7 @@ public class SpringbootTest {
     OrderRepository orderRepository;
 
     @Test
-    public void jpaTest(){
+    public void jpaTest() {
         List<Order> all = orderRepository.findAll();
         System.out.println(all);
 

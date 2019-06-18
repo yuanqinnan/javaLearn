@@ -187,7 +187,7 @@ public class MapperTest {
     }
 
     @Test
-    public void selectUserByChoose(){
+    public void selectUserByChoose() {
         SqlSession sqlSession = this.sqlSessionFactory.openSession();
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         User user = new User();
@@ -202,11 +202,11 @@ public class MapperTest {
     }
 
     @Test
-    public void queryUserByIds(){
+    public void queryUserByIds() {
         SqlSession sqlSession = this.sqlSessionFactory.openSession();
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         QueryVo user = new QueryVo();
-        List<Integer>ids = new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
         ids.add(1);
         ids.add(10);
         ids.add(24);
@@ -219,7 +219,7 @@ public class MapperTest {
     }
 
     @Test
-    public void queryOrderUser(){
+    public void queryOrderUser() {
         SqlSession sqlSession = this.sqlSessionFactory.openSession();
         OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
         List<OrderUserVO> list = orderMapper.queryOrderUser();
@@ -230,7 +230,7 @@ public class MapperTest {
     }
 
     @Test
-    public void queryOrderUserResultMap(){
+    public void queryOrderUserResultMap() {
         SqlSession sqlSession = this.sqlSessionFactory.openSession();
         OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
         List<Order> list = orderMapper.queryOrderUserResultMap();
@@ -239,8 +239,9 @@ public class MapperTest {
         }
         sqlSession.close();
     }
+
     @Test
-    public void queryUserOrder(){
+    public void queryUserOrder() {
         SqlSession sqlSession = this.sqlSessionFactory.openSession();
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
         List<User> list = userMapper.queryUserOrder();
@@ -249,8 +250,9 @@ public class MapperTest {
         }
         sqlSession.close();
     }
+
     @Test
-    public void listOrder(){
+    public void listOrder() {
         SqlSession sqlSession = this.sqlSessionFactory.openSession();
         OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
         List<Order> list = orderMapper.listOrder();

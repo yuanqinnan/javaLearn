@@ -20,22 +20,22 @@
 
     <!-- 查询所有的订单数据 -->
     <select id="queryOrderAll" resultType="com.yuanqinnan.model.Order">
-		SELECT id, user_id,
-		number,
-		createtime, note FROM `order`
-	</select>
+        SELECT id, user_id,
+        number,
+        createtime, note FROM `order`
+    </select>
 
     <select id="queryOrderAll2" resultMap="orderResultMap">
-		SELECT id, user_id,
-		number,
-		createtime, note FROM `order`
-	</select>
+        SELECT id, user_id,
+        number,
+        createtime, note FROM `order`
+    </select>
     <select id="queryOrderUser" resultType="com.yuanqinnan.pojo.OrderUserVO">
-    SELECTo.id,o.user_id,userId,o.number,o.createtime,o.note,u.username,u.address
-    FROM
-    `order` o
-    LEFT JOIN `user` u ON o.user_id = u.id
-   </select>
+        SELECTo.id,o.user_id,userId,o.number,o.createtime,o.note,u.username,u.address
+        FROM
+        `order` o
+        LEFT JOIN `user` u ON o.user_id = u.id
+    </select>
     <resultMap type="com.yuanqinnan.model.Order" id="orderUserResultMap">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
@@ -56,11 +56,11 @@
     </resultMap>
     <!-- 一对一关联，查询订单，订单内部包含用户属性 -->
     <select id="queryOrderUserResultMap" resultMap="orderUserResultMap">
-    SELECT o.id,o.user_id,o.number,o.createtime,o.note,u.username,u.address
-    FROM
-    `order` o
-    LEFT JOIN `user` u ON o.user_id = u.id
-</select>
+        SELECT o.id,o.user_id,o.number,o.createtime,o.note,u.username,u.address
+        FROM
+        `order` o
+        LEFT JOIN `user` u ON o.user_id = u.id
+    </select>
     <resultMap type="com.yuanqinnan.model.Order" id="orderBean">
         <id column="id" property="id"/>
         <result property="userId" column="user_id"/>
@@ -81,15 +81,15 @@
 
     <select id="listOrder" resultMap="orderBean">
         SELECT
-            o.*,
-            o.id oid,
-            p.id pid,
-            oi.id oiid,
-            p.NAME pname
+        o.*,
+        o.id oid,
+        p.id pid,
+        oi.id oiid,
+        p.NAME pname
         FROM
-            `order` o
-            LEFT JOIN order_product oi ON o.id = oi.oid
-            LEFT JOIN product p ON p.id = oi.pid
+        `order` o
+        LEFT JOIN order_product oi ON o.id = oi.oid
+        LEFT JOIN product p ON p.id = oi.pid
     </select>
 
 </mapper>

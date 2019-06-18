@@ -23,7 +23,7 @@ public class Order {
     @Column(name = "user_Id")
     private Integer userId;
     //这是和数据表对应的一个列
-    @Column(name="number",length = 32)
+    @Column(name = "number", length = 32)
     private String number;
     // 订单创建时间,省略默认列名就是属性名
     private Date createtime;

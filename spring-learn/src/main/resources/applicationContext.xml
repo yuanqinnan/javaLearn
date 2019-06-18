@@ -6,14 +6,14 @@
     <bean id="hello" class="com.yuanqinnan.ioc.HelloWorld">
         <property name="info" value="Hello,This is my first Spring Application!"></property>
     </bean>
-    <bean id="hello2"  init-method="getInfo" destroy-method="destory" class="com.yuanqinnan.ioc.HelloWorld">
+    <bean id="hello2" init-method="getInfo" destroy-method="destory" class="com.yuanqinnan.ioc.HelloWorld">
     </bean>
     <bean name="hello3"
           class="com.yuanqinnan.ioc.HellowWorldFactory"
           factory-method="createHellowWorld">
     </bean>
     <bean id="HellowWorldFactory2" class="com.yuanqinnan.ioc.HellowWorldFactory2"/>
-    <bean id="hello4" factory-bean="HellowWorldFactory2" factory-method="createHellowWorld" />
+    <bean id="hello4" factory-bean="HellowWorldFactory2" factory-method="createHellowWorld"/>
 
     <bean name="user" class="com.yuanqinnan.ioc.User">
         <!--值类型注入-->

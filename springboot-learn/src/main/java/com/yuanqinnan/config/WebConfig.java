@@ -41,21 +41,21 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ServletRegistrationBean myServlet(){
-        ServletRegistrationBean registrationBean = new ServletRegistrationBean(new MyServlet(),"/myServlet");
+    public ServletRegistrationBean myServlet() {
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(new MyServlet(), "/myServlet");
         return registrationBean;
     }
 
     @Bean
-    public FilterRegistrationBean myFilter(){
+    public FilterRegistrationBean myFilter() {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new MyFilter());
-        registrationBean.setUrlPatterns(Arrays.asList("/hello","/myServlet"));
+        registrationBean.setUrlPatterns(Arrays.asList("/hello", "/myServlet"));
         return registrationBean;
     }
 
     @Bean
-    public ServletListenerRegistrationBean myListener(){
+    public ServletListenerRegistrationBean myListener() {
         ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(new MyListener());
         return registrationBean;
     }

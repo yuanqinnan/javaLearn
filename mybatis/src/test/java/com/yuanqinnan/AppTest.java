@@ -11,21 +11,19 @@ import java.io.Reader;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-{
+public class AppTest {
     /**
      * Rigorous Test :-)
      */
     @Test
-    public void shouldAnswerWithTrue()
-    {
+    public void shouldAnswerWithTrue() {
         try {
             //使用MyBatis提供的Resources类加载mybatis的配置文件
             Reader reader = Resources.getResourceAsReader("config/SqlMapConfig.xml");
             //构建sqlSession的工厂
             SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(reader);
 
-            SqlSession session= sessionFactory.openSession();
+            SqlSession session = sessionFactory.openSession();
             Object user = session.selectOne("queryUserById", 1);
             System.out.println(user.toString());
 

@@ -15,7 +15,7 @@ public interface DepartmentMapper {
     @Delete("delete from department where id=#{id}")
     int deleteDeptById(Integer id);
 
-    @Options(useGeneratedKeys = true,keyProperty = "id")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     @Insert("insert into department(departmentName) values(#{departmentName})")
     int insertDept(Department department);
 

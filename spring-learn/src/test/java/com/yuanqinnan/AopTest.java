@@ -15,7 +15,7 @@ import java.lang.reflect.Proxy;
 public class AopTest {
 
     @Test
-    public void fun1(){
+    public void fun1() {
         MyTransaction transaction = new MyTransaction();
         EmployeeService EmployeeService = new EmployeeServiceImpl();
         //产生静态代理对象
@@ -25,7 +25,7 @@ public class AopTest {
     }
 
     @Test
-    public void fun2(){
+    public void fun2() {
         //目标类
         Object target = new EmployeeServiceImpl();
         //事务类
@@ -44,15 +44,15 @@ public class AopTest {
     }
 
     @Test
-    public void fun3(){
+    public void fun3() {
         ApplicationContext context = new ClassPathXmlApplicationContext("/applicationContext3.xml");
         EmployeeService employeeService = (EmployeeService) context.getBean("employeeService");
         employeeService.addEmployee(null);
     }
 
     @Test
-    public void fun4(){
-        ApplicationContext act =  new ClassPathXmlApplicationContext("/applicationContext4.xml");
+    public void fun4() {
+        ApplicationContext act = new ClassPathXmlApplicationContext("/applicationContext4.xml");
         EmployeeService employeeService = (EmployeeService) act.getBean("employeeService");
         employeeService.addEmployee(null);
     }
