@@ -2,6 +2,7 @@ package com.yuanqinnan.api.reflect;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ComplieClassLoader extends ClassLoader {
@@ -21,7 +22,7 @@ public class ComplieClassLoader extends ClassLoader {
         }
     }
 
-    private boolean complie(String javaFile) throws IOException {
+    private boolean compile(String javaFile) throws IOException {
         System.out.println("正在编译文件" + javaFile + "...");
         Process p = Runtime.getRuntime().exec("javac " + javaFile);
         try {
@@ -33,11 +34,40 @@ public class ComplieClassLoader extends ClassLoader {
         return ret == 0;
     }
 
-    protected Class<?> findClass(String name) {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
         Class clazz = null;
         String fileSub = name.replace(".", "/");
+        String javaFileName = fileSub + ".java";
+        String classFileName = fileSub + ".class";
+        File javaFile = new File(javaFileName);
+        File classFile = new File(classFileName);
+        if (javaFile.exists() && (classFile.exists() || javaFile.lastModified() > classFile.lastModified())) {
+            try {
+                if (!compile(javaFileName) || !classFile.exists()) {
+                    throw new FileNotFoundException("FileNotFoundException：" + javaFileName);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (classFile.exists()) {
+            try {
+                byte[] raw = getBytes(classFileName);
+                clazz = defineClass(name, raw, 0, raw.length);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (clazz == null) {
+            throw new ClassNotFoundException(name);
+        }
         return clazz;
 
     }
-
+    public static void main(String[] args){
+        if(args.length<1){
+            System.out.println("确实目标类");
+        }
+        String progClass=args[0];
+    }
 }
