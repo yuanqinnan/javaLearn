@@ -5,7 +5,6 @@ package com.yuanqinnan.api.thread;
  * @date 2019/6/23 23:32
  */
 public class SecondThread implements Runnable {
-
     private int i = 0;
 
     @Override
@@ -23,8 +22,8 @@ public class SecondThread implements Runnable {
             if (i == 20) {
                 //创建线程并启动
                 SecondThread secondThread=new SecondThread();
-                new Thread(secondThread).start();
-                new Thread(secondThread).start();
+                new Thread(secondThread,"线程一").start();
+                new Thread(secondThread,"线程二").start();
             }
 
         }
