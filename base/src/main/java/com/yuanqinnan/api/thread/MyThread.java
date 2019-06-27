@@ -20,7 +20,7 @@ public class MyThread extends Thread {
             Thread.sleep(2000);
             myThread.interrupt();
             System.out.println("是否停止1：" + myThread.interrupted());
-            System.out.println("是否停止2：" + myThread.isInterrupted());
+            System.out.println("是否停止2：" + myThread.interrupted());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
