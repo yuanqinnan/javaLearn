@@ -14,16 +14,24 @@ public class MyThread extends Thread {
     }
 
     public static void main(String[] args) {
-        try {
+//        try {
             MyThread myThread = new MyThread();
             myThread.start();
-            Thread.sleep(2000);
+            //Thread.sleep(2000);
             myThread.interrupt();
-            System.out.println("是否停止1：" + myThread.interrupted());
-            System.out.println("是否停止2：" + myThread.interrupted());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            //System.out.println("是否停止1：" + myThread.interrupted());
+            //System.out.println("是否停止2：" + myThread.interrupted());
+
+
+            System.out.println(myThread.isInterrupted());//true
+            System.out.println(myThread.isInterrupted());//true
+
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        Thread.currentThread().interrupt();
+        System.out.println("是否停止1？=" + Thread.interrupted());//true，执行方法后清除了标记
+        System.out.println("是否停止2？=" + Thread.interrupted());//false
 
     }
 }
