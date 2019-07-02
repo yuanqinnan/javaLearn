@@ -11,6 +11,6 @@ public class SynchronizedDemo {
         method();
     }
 
-    private static void method() {
+    private synchronized static void method() {
     }
 }
