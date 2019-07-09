@@ -5,7 +5,7 @@ package com.yuanqinnan.api.thread;
  * @date: 2019/7/9 19:17
  */
 public class VolatileTest {
-    private static  boolean isOver = false;
+    private static volatile boolean isOver = false;
     private static int a = 1;
 
     public static void main(String[] args) {
