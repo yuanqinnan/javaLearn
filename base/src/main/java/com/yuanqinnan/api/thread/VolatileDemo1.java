@@ -4,7 +4,7 @@ package com.yuanqinnan.api.thread;
  * @author:yuanqinnan
  * @date: 2019/7/10 10:09
  */
-public class VolatileExample2 {
+public class VolatileDemo1 {
     private int a = 0;
     private boolean flag = false;
 
@@ -20,7 +20,7 @@ public class VolatileExample2 {
     }
 
     public static void main(String[] args) {
-        VolatileExample2 volatileExample2 = new VolatileExample2();
+        VolatileDemo1 volatileExample2 = new VolatileDemo1();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {

@@ -4,7 +4,7 @@ package com.yuanqinnan.api.thread;
  * @author:yuanqinnan
  * @date: 2019/7/9 19:17
  */
-public class VolatileTest {
+public class VolatileDemo3 {
     private static volatile boolean isOver = false;
     private static int a = 1;
 

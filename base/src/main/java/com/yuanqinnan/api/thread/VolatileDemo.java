@@ -4,7 +4,7 @@ package com.yuanqinnan.api.thread;
  * @author yuanqn
  * @date 2019/7/9 23:07
  */
-public class VolatileExample {
+public class VolatileDemo {
     private static volatile int counter = 0;
 
     public static void main(String[] args) {
