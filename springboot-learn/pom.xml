@@ -9,7 +9,7 @@
         <version>2.1.3.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.yuanqinnan</groupId>
+    <groupId>com.yuanqn</groupId>
     <artifactId>springboot-learn</artifactId>
     <version>1.0-SNAPSHOT</version>
 

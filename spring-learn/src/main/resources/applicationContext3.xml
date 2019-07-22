@@ -6,11 +6,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
          http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
     <!--目标类-->
-    <bean name="employeeService" class="com.yuanqinnan.aop.EmployeeServiceImpl"></bean>
-    <bean name="transaction" class="com.yuanqinnan.aop.MyTransaction"></bean>
+    <bean name="employeeService" class="com.yuanqn.aop.EmployeeServiceImpl"></bean>
+    <bean name="transaction" class="com.yuanqn.aop.MyTransaction"></bean>
     <aop:config>
         <aop:aspect ref="transaction">
-            <aop:pointcut id="pointcut" expression="execution(* com.yuanqinnan.aop.EmployeeServiceImpl..*(..))"/>
+            <aop:pointcut id="pointcut" expression="execution(* com.yuanqn.aop.EmployeeServiceImpl..*(..))"/>
             <!-- 配置前置通知，注意 method 的值要和 对应切面的类方法名称相同 -->
             <aop:before method="before" pointcut-ref="pointcut"></aop:before>
             <!--配置后置通知，注意 method 的值要和 对应切面的类方法名称相同-->

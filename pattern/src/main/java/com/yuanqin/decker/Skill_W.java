@@ -2,7 +2,7 @@ package com.yuanqin.decker;
 
 /**
  * \* Created with IntelliJ IDEA.
- * \* User: yuanqinnan
+ * \* User: yuanqn
  * \* Date: 2018/12/21
  * \* Time: 11:30
  * \* To change this template use File | Settings | File Templates.

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * \* Created with IntelliJ IDEA.
- * \* User: yuanqinnan
+ * \* User: yuanqn
  * \* Date: 2018/12/20
  * \* Time: 10:51
  * \* To change this template use File | Settings | File Templates.

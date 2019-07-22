@@ -29,9 +29,9 @@
    -->
     <typeAliases>
         <!-- 单个别名定义 -->
-        <typeAlias alias="user" type="com.yuanqinnan.model.User"/>
+        <typeAlias alias="user" type="com.yuanqn.model.User"/>
         <!-- 批量别名定义，扫描整个包下的类，别名为类名（大小写不敏感）
-        <package name="com.yuanqinnan.model.pojo" />
+        <package name="com.yuanqnel.pojo" />
         <package name="其它包" />
         -->
     </typeAliases>
@@ -52,17 +52,17 @@
     </environments>
 
     <mappers>
-        <package name="com.yuanqinnan.mapper"/>
+        <package name="com.yuanqn.mapper"/>
         <!-- 映射文件方式1，一个一个的配置
         <mapper resource="config/sqlmap/User.xml"/>
         <mapper resource="config/mapper/UserMapper.xml"/>
         -->
         <!-- 通过mapper接口加载单个映射配置文件遵循一定的规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中；
       上边规范的前提是：使用的是mapper代理方法;
-        <mapper class="com.yuanqinnan.mapper.UserMapper"/>
+        <mapper class="com.yuanqnper.UserMapper"/>
         -->
         <!--此种方法要求mapper接口名称和mapper映射文件名称相同，且放在同一个目录中
-        <mapper class="com.yuanqinnan.mapper"/>
+        <mapper class="com.yuanqnper"/>
         -->
     </mappers>
 </configuration>

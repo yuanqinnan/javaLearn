@@ -2,7 +2,7 @@ package com.yuanqin.factory;
 
 /**
  * \* Created with IntelliJ IDEA.
- * \* User: yuanqinnan
+ * \* User: yuanqn
  * \* Date: 2018/12/22
  * \* Time: 10:47
  * \* To change this template use File | Settings | File Templates.

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="com.yuanqn.mapper.UserMapper">
+    <select id="queryUserById" parameterType="int" resultType="user">
+        SELECT * FROM `user`where id=#{id}
+    </select>
+    <!-- 查询 user 表的所有数据-->
+    <select id="selectUserAll" resultType="com.yuanqn.model.User">
+        select * from user
+    </select>
+    <!--
+            1、${value}里面必须要写value，不然会报错
+            2、${}表示拼接 sql 字符串，将接收到的参数不加任何修饰拼接在sql语句中
+            3、使用${}会造成 sql 注入
+    -->
+    <select id="selectLikeUserName" resultType="com.yuanqn.model.User" parameterType="String">
+        select * from user where username like '%${value}%'
+    </select>
+    <!--#{}实现-->
+    <select id="selectLikeUserName2" resultType="com.yuanqn.model.User" parameterType="String">
+        select * from user where username like #{username}
+    </select>
+    <!-- 向 user 表插入一条数据 -->
+    <insert id="insertUser" parameterType="com.yuanqn.model.User">
+        insert into user(id,username,sex,birthday,address)
+        value(#{id},#{username},#{sex},#{birthday},#{address})
+    </insert>
+    <!-- 保存用户 -->
+    <insert id="saveUser" parameterType="com.yuanqn.model.User">
+        <!-- selectKey 标签实现主键返回 -->
+        <!-- keyColumn:主键对应的表中的哪一列 -->
+        <!-- keyProperty：主键对应的pojo中的哪一个属性 -->
+        <!-- order：设置在执行insert语句前执行查询id的sql，在执行insert语句之后执行查询id的sql -->
+        <!-- resultType：设置返回的id的类型 -->
+        <selectKey keyColumn="id" keyProperty="id" order="AFTER"
+                   resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO `user`
+        (username,birthday,sex,address) VALUES
+        (#{username},#{birthday},#{sex},#{address})
+    </insert>
+    <!-- 根据 id 更新 user 表的数据 -->
+    <update id="updateUserById" parameterType="com.yuanqn.model.User">
+        update user set username=#{username} where id=#{id}
+    </update>
+
+    <!-- 根据 id 删除 user 表的数据 -->
+    <delete id="deleteUserById" parameterType="int">
+        delete from user where id=#{id}
+    </delete>
+
+    <select id="queryByQo" parameterType="com.yuanqn.pojo.QueryVo" resultType="com.yuanqn.model.User">
+        SELECT * from user where username like '%${user.username}%'
+    </select>
+    <select id="queryUserCount" resultType="int">
+        select count(*) from user
+    </select>
+
+    <!-- 根据条件查询用户 -->
+    <select id="queryUserByWhere" parameterType="user" resultType="user">
+        SELECT id, username, birthday, sex, address FROM `user`
+        WHERE 1=1
+        <if test="sex!=null and sex !=''">
+            AND sex = #{sex}
+        </if>
+        <if test="username!=null and username!=''">
+            AND username like
+            '%${username}%'
+        </if>
+    </select>
+    <!-- 根据条件查询用户 -->
+    <select id="queryUserByWhere1" parameterType="user" resultType="user">
+        SELECT id, username, birthday, sex, address FROM `user`
+        <!-- where标签可以自动添加where，同时处理sql语句中第一个and或者or关键字 -->
+        <where>
+            <if test="sex!=null">
+                AND sex = #{sex}
+            </if>
+            <if test="username!=null and username!=''">
+                AND username like
+                '%${username}%'
+            </if>
+        </where>
+    </select>
+
+    <update id="dynamicSetTest" parameterType="user">
+        update `user`
+        <set>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="username!=null and username!=''">
+                username = #{username},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="selectUserByChoose" resultType="user" parameterType="user">
+        select id, username, birthday, sex, address FROM `user`
+        <where>
+            <choose>
+                <when test="id !='' and id != null">
+                    id=#{id}
+                </when>
+                <when test="username !='' and username != null">
+                    and username like #{username}
+                </when>
+                <otherwise>
+                    and sex=#{sex}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <select id="selectUserByUsernameAndSex" resultType="user" parameterType="user">
+        select * from user
+        <!-- <where>
+            <if test="username != null">
+               username=#{username}
+            </if>
+
+            <if test="username != null">
+               and sex=#{sex}
+            </if>
+        </where>  -->
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="username != null">
+                and username=#{username}
+            </if>
+            <if test="sex != null">
+                and sex=#{sex}
+            </if>
+        </trim>
+    </select>
+
+    <!-- 声明sql片段 -->
+    <sql id="userFields">
+        id, username, birthday, sex, address
+    </sql>
+
+    <select id="queryUserBySqlWhere" parameterType="user" resultType="user">
+        <!-- SELECT id, username, birthday, sex, address FROM `user` -->
+        <!-- 使用include标签加载sql片段；refid是sql片段id -->
+        SELECT
+        <include refid="userFields"/>
+        FROM `user`
+        <!-- where标签可以自动添加where关键字，同时处理sql语句中第一个and关键字 -->
+        <where>
+            <if test="sex != null">
+                AND sex = #{sex}
+            </if>
+            <if test="username != null and username != ''">
+                AND username LIKE
+                '%${username}%'
+            </if>
+        </where>
+    </select>
+    <select id="queryUserByIds" parameterType="com.yuanqn.pojo.QueryVo" resultType="user">
+        SELECT * FROM `user`
+        <where>
+            <!-- foreach标签，进行遍历 -->
+            <!-- collection：遍历的集合，这里是QueryVo的ids属性 -->
+            <!-- item：遍历的项目，可以随便写，，但是和后面的#{}里面要一致 -->
+            <!-- open：在前面添加的sql片段 -->
+            <!-- close：在结尾处添加的sql片段 -->
+            <!-- separator：指定遍历的元素之间使用的分隔符 -->
+            <foreach collection="ids" item="item" open="id IN (" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+    <resultMap type="user" id="userOrderResultMap">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="birthday" column="birthday"/>
+        <result property="sex" column="sex"/>
+        <result property="address" column="address"/>
+
+        <!-- 配置一对多的关系 -->
+        <collection property="orderList" javaType="list" ofType="com.yuanqn.model.Order">
+            <!-- 配置主键，是关联Order的唯一标识 -->
+            <id property="id" column="oid"/>
+            <result property="number" column="number"/>
+            <result property="createtime" column="createtime"/>
+            <result property="note" column="note"/>
+        </collection>
+    </resultMap>
+    <!-- 一对多关联，查询订单同时查询该用户下的订单 -->
+    <select id="queryUserOrder" resultMap="userOrderResultMap">
+        SELECT u.id,u.username,u.birthday,u.sex,u.address,o.id oid,o.number,o.createtime,o.note
+        FROM
+        `user` u
+        LEFT JOIN `order` o ON u.id = o.user_id
+    </select>
+
+
+</mapper>

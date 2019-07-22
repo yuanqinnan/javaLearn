@@ -2,7 +2,7 @@ package com.yuanqin.singleton;
 
 /**
  * \* Created with IntelliJ IDEA.
- * \* User: yuanqinnan
+ * \* User: yuanqn
  * \* Date: 2018/12/24
  * \* Time: 10:48
  * \* To change this template use File | Settings | File Templates.

@@ -7,19 +7,19 @@
          http://www.springframework.org/schema/beans/spring-beans.xsd
          http://www.springframework.org/schema/context
          http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-    <context:component-scan base-package="com.yuanqinnan.transaction"></context:component-scan>
+    <context:component-scan base-package="com.yuanqn.transaction"></context:component-scan>
     <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
         <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
         <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/test"></property>
         <property name="user" value="root"></property>
         <property name="password" value="123456"></property>
     </bean>
-    <bean id="accountDao" class="com.yuanqinnan.transaction.AccountDaoImpl">
+    <bean id="accountDao" class="com.yuanqn.transaction.AccountDaoImpl">
         <property name="dataSource" ref="dataSource"></property>
 
     </bean>
 
-    <bean id="accountService" class="com.yuanqinnan.transaction.AccountServiceImpl3">
+    <bean id="accountService" class="com.yuanqn.transaction.AccountServiceImpl3">
         <property name="accountDao" ref="accountDao"></property>
     </bean>
     <!-- 1 事务管理器 -->

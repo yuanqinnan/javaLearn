@@ -15,12 +15,12 @@
         <property name="password" value="123456"></property>
     </bean>
 
-    <bean id="accountDao" class="com.yuanqinnan.transaction.AccountDaoImpl">
+    <bean id="accountDao" class="com.yuanqn.transaction.AccountDaoImpl">
         <property name="dataSource" ref="dataSource"></property>
 
     </bean>
 
-    <bean id="accountService" class="com.yuanqinnan.transaction.AccountServiceImpl2">
+    <bean id="accountService" class="com.yuanqn.transaction.AccountServiceImpl2">
         <property name="accountDao" ref="accountDao"></property>
     </bean>
     <!-- 1 事务管理器 -->
@@ -43,6 +43,6 @@
     <!-- 3 AOP编程，利用切入点表达式从目标类方法中 确定增强的连接器，从而获得切入点 -->
     <aop:config>
         <aop:advisor advice-ref="txAdvice"
-                     pointcut="execution(* com.yuanqinnan.transaction.AccountServiceImpl.transfer(..))"/>
+                     pointcut="execution(* com.yuanqn.transaction.AccountServiceImpl.transfer(..))"/>
     </aop:config>
 </beans>
