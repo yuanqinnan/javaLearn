@@ -1,16 +1,14 @@
-package com.yuanqinnan.api.synchronizeds;
+package com.yuanqinnan.concurrency.synchronizeds;
 
 /**
  * @author:yuanqinnan
- * @date: 2019/7/3 9:41
+ * @date: 2019/7/3 11:08
  */
 
+public class SynchronizedDemo2 {
+    private static int count;
 
-public class SynchronizedDemo1 {
-
-    private int count;
-
-    public synchronized void countAdd() {
+    public static synchronized void countAdd() {
         for (int i = 0; i < 5; i++) {
             try {
                 System.out.println(Thread.currentThread().getName() + ":" + (count++));
@@ -21,12 +19,9 @@ public class SynchronizedDemo1 {
         }
     }
 
-    public void print() {
-        System.out.println(Thread.currentThread().getName() + "的打印方法:" + count);
-    }
-
     public static void main(String[] args) {
-        SynchronizedDemo1 demo1 = new SynchronizedDemo1();
+        SynchronizedDemo2 demo1 = new SynchronizedDemo2();
+        SynchronizedDemo2 demo2 = new SynchronizedDemo2();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -37,8 +32,7 @@ public class SynchronizedDemo1 {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                demo1.print();
-                demo1.countAdd();
+                demo2.countAdd();
 
             }
         }).start();

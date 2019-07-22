@@ -1,4 +1,4 @@
-package com.yuanqinnan.api;
+package com.yuanqinnan.api.gather;
 
 import java.util.*;
 import java.util.function.Predicate;

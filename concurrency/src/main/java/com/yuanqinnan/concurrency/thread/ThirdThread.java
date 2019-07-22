@@ -1,4 +1,4 @@
-package com.yuanqinnan.api.thread;
+package com.yuanqinnan.concurrency.thread;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -6,22 +6,19 @@ import java.util.concurrent.FutureTask;
 
 /**
  * @author yuanqn
- * @date 2019/6/2422:44
+ * @date 2019/6/2422:14
  */
-public class FourThread implements Callable {
+public class ThirdThread {
 
-    private int i = 0;
-
-    @Override
-    public Integer call() throws Exception {
-        for (; i < 100; i++) {
-            System.out.println(Thread.currentThread().getName() + "的循环变量i的值：" + i);
-        }
-        return i;
-    }
     public static void main(String[] args) {
-        FourThread fourThread = new FourThread();
-        FutureTask task = new FutureTask(fourThread);
+        //使用lambda表达式
+        FutureTask<Integer> task = new FutureTask<>((Callable<Integer>) () -> {
+            int i = 0;
+            for (; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName() + "的循环变量i的值：" + i);
+            }
+            return i;
+        });
         for (int i = 0; i < 100; i++) {
             //Thread的静态方法currentThread，获取当前线程
             System.out.println(Thread.currentThread().getName());

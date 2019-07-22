@@ -1,4 +1,4 @@
-package com.yuanqinnan.api.synchronizeds;
+package com.yuanqinnan.concurrency.synchronizeds;
 
 
 /**

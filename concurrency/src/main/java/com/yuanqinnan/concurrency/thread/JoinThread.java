@@ -1,4 +1,4 @@
-package com.yuanqinnan.api.thread;
+package com.yuanqinnan.concurrency.thread;
 
 /**
  * @author:yuanqinnan

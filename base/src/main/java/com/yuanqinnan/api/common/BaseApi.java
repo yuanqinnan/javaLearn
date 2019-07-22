@@ -1,4 +1,4 @@
-package com.yuanqinnan.api;
+package com.yuanqinnan.api.common;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.yuanqinnan</groupId>
-    <artifactId>springLearn</artifactId>
+    <artifactId>spring-learn</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>springLearn</name>
+    <name>spring-learn</name>
 
     <properties>
         <!-- 文件拷贝时的编码 -->
