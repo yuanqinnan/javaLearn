@@ -14,6 +14,7 @@ public class FinalDemo {
 
     private final double c;
 
+    //final变量未初始化时系统不会进行隐式初始化，会出现报错
     //private final char aChar;
 
     {
@@ -22,16 +23,28 @@ public class FinalDemo {
 
     static {
 
+        //静态变量在静态块中进行了赋值，
         b = true;
+        //非静态变量不能在静态块中赋值
         //c=100;
     }
 
     public FinalDemo() {
+        //实例变量
         c = 1.0;
-        //a = 10;已经赋值的不能修改
+        //已经赋值的不能修改
+        //a = 10;
     }
 
-    public void a() {
-        //a = 10;实例方法不能为final类型变量赋值
+    public void a(final int f) {
+        //实例方法不能为final类型变量赋值
+        //a = 10;
+        final int d;
+        //调用方法入参一定会赋值，此时再次赋值就会出错
+        //f=2;
+        //未赋值可以进行赋值
+        d=2;
+        //已赋值过一次，不允许再次赋值
+        //d=3;
     }
 }
